@@ -1,17 +1,18 @@
 "use client";
 
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import type { SupabaseClient } from "@supabase/supabase-js";
 
-export default function RegisterPage() {
-  const [namaLengkap, setNamaLengkap] = useState("");
+export default function LoginPage() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
-  const supabase = createBrowserClient(
+  const router = useRouter();
+  const supabase: SupabaseClient = createBrowserClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
     process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
   );
@@ -20,26 +21,19 @@ export default function RegisterPage() {
     e.preventDefault();
     setLoading(true);
     setError(null);
-    setSuccess(false);
 
-    const { error } = await supabase.auth.signUp({
+    const { error } = await supabase.auth.signInWithPassword({
       email,
       password,
-      options: {
-        data: {
-          full_name: namaLengkap,
-        },
-      },
     });
 
     setLoading(false);
+
     if (error) {
       setError(error.message);
     } else {
-      setSuccess(true);
-      setNamaLengkap("");
-      setEmail("");
-      setPassword("");
+      // Berhasil login, arahkan ke halaman utama
+      router.push("/");
     }
   };
 
@@ -47,26 +41,9 @@ export default function RegisterPage() {
     <div className="min-h-screen flex items-center justify-center bg-green-50 py-12 px-4">
       <div className="max-w-md w-full bg-white shadow-lg rounded-xl p-8">
         <h2 className="text-2xl font-bold text-green-700 mb-6 text-center">
-          Daftar Akun EcoPoin
+          Masuk ke EcoPoin
         </h2>
         <form className="space-y-5" onSubmit={handleSubmit}>
-          <div>
-            <label
-              htmlFor="namaLengkap"
-              className="block text-green-700 font-medium mb-1"
-            >
-              Nama Lengkap
-            </label>
-            <input
-              id="namaLengkap"
-              type="text"
-              value={namaLengkap}
-              onChange={(e) => setNamaLengkap(e.target.value)}
-              required
-              placeholder="Masukkan nama lengkap"
-              className="w-full px-4 py-2 rounded-lg border border-green-200 focus:outline-none focus:ring-2 focus:ring-green-400"
-            />
-          </div>
           <div>
             <label
               htmlFor="email"
@@ -106,16 +83,11 @@ export default function RegisterPage() {
             disabled={loading}
             className="w-full flex justify-center items-center bg-green-600 hover:bg-green-700 text-white font-semibold py-2.5 px-4 rounded-lg transition-colors"
           >
-            {loading ? "Mendaftar..." : "Daftar"}
+            {loading ? "Masuk..." : "Masuk"}
           </button>
         </form>
         {error && (
           <div className="mt-4 text-red-600 text-center text-sm">{error}</div>
-        )}
-        {success && (
-          <div className="mt-4 text-green-700 text-center text-sm">
-            Berhasil mendaftar! Silakan cek email untuk verifikasi.
-          </div>
         )}
       </div>
     </div>
