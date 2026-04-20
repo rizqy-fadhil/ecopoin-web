@@ -33,7 +33,7 @@ export default function LoginPage() {
       setError(error.message);
     } else {
       // Berhasil login, arahkan ke halaman utama
-      router.push("/");
+      router.push("/dashboard");
     }
   };
 
