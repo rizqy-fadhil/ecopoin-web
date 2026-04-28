@@ -1,7 +1,7 @@
 import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
-import { ClientAppLayout } from "@/components/ClientAppLayout";
+import { ClientRootLayout } from "@/components/ClientRootLayout";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -15,11 +15,12 @@ export default function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  // html must be server component, but body/client wrappers are client
   return (
     <html lang="id">
-      <body className={inter.className}>
-        <ClientAppLayout>{children}</ClientAppLayout>
-      </body>
+      <ClientRootLayout bodyClassName={inter.className}>
+        {children}
+      </ClientRootLayout>
     </html>
   );
 }

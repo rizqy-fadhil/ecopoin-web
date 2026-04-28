@@ -8,11 +8,15 @@ import Sidebar from "@/components/Sidebar";
 export function ClientAppLayout({ children }: { children: ReactNode }) {
   const pathname = usePathname();
 
-  const hideChrome =
-    pathname === "/" || pathname === "/login" || pathname === "/register";
+  // Jangan render Sidebar User jika prefix /admin, /login, /register, atau root ('/')
+  const isHideSidebar =
+    pathname === "/" ||
+    pathname.startsWith("/admin") ||
+    pathname === "/login" ||
+    pathname === "/register";
 
-  if (hideChrome) {
-    return <main className="min-h-screen bg-gray-50">{children}</main>;
+  if (isHideSidebar) {
+    return <>{children}</>;
   }
 
   return (
@@ -27,4 +31,3 @@ export function ClientAppLayout({ children }: { children: ReactNode }) {
     </div>
   );
 }
-

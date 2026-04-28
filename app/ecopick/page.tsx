@@ -1,13 +1,306 @@
-import React from "react";
+"use client";
+
+import React, { useState, useEffect, useRef } from "react";
 import {
   Upload,
   FolderOpen,
   Calendar,
   MapPin,
   ChevronDown,
+  BadgeCheck,
+  Truck,
+  Info,
+  Clock,
+  FileStack,
+  Weight,
+  MapPin as Pin,
 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import type { SupabaseClient } from "@supabase/supabase-js";
+
+// Waktu tersedia
+const TIME_SLOTS = [
+  { value: "08:00", label: "08:00 AM" },
+  { value: "10:00", label: "10:00 AM" },
+  { value: "13:00", label: "01:00 PM" },
+  { value: "15:00", label: "03:00 PM" },
+];
+
+// Address dummy / default
+const DEFAULT_ADDRESS = "Jl. Pemuda No. 12, Surabaya";
+
+function generateReferenceNumber() {
+  const pad = (n: number, len = 2) => n.toString().padStart(len, "0");
+  const d = new Date();
+  const dd = pad(d.getDate());
+  const mm = pad(d.getMonth() + 1);
+  const yy = d.getFullYear().toString().slice(-2);
+  const rand = pad(Math.floor(1000 + Math.random() * 9000), 4);
+  return `EPK-${dd}${mm}${yy}-${rand}`;
+}
 
 export default function PickupPage() {
+  // --- State ---
+  const router = useRouter();
+  const supabase: SupabaseClient = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
+  // Trash categories state (from DB)
+  const [categories, setCategories] = useState<any[]>([]);
+  const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
+  const [weight, setWeight] = useState<string>(""); // input is string for controlled input
+  const [notes, setNotes] = useState("");
+  const [pickupDate, setPickupDate] = useState("");
+  const [pickupTime, setPickupTime] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Success state
+  const [isSuccess, setIsSuccess] = useState(false);
+  const [successData, setSuccessData] = useState<any>(null);
+
+  // Photo/file input: Not uploaded for now
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+
+  useEffect(() => {
+    // Fetch trash_categories from Supabase on mount
+    async function fetchCategories() {
+      const { data, error } = await supabase
+        .from("trash_categories")
+        .select("id, name, point_per_unit")
+        .order("id");
+      if (!error && data) {
+        setCategories(data);
+      } else {
+        setCategories([]);
+      }
+    }
+    fetchCategories();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // run once
+
+  // Find selected category object
+  const selectedCategory =
+    categories.find((cat) => String(cat.id) === String(selectedCategoryId)) || null;
+
+  // Weight parse/convert (decimal, safe fallback to 0)
+  const weightNum = Number(weight) > 0 ? Number(weight) : 0;
+
+  // Dynamic calculated points (auto updates)
+  const calculatedPoints =
+    selectedCategory && weightNum > 0
+      ? Math.round(weightNum * Number(selectedCategory.point_per_unit))
+      : 0;
+
+  // --- Handlers ---
+  const handleSchedule = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    // Validasi simple
+    if (
+      !selectedCategory ||
+      String(selectedCategoryId) === "" ||
+      isNaN(weightNum) ||
+      weightNum <= 0 ||
+      !pickupDate ||
+      !pickupTime
+    ) {
+      alert("Mohon lengkapi semua field wajib!");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Get current user
+      const {
+        data: { user },
+        error: userError,
+      } = await supabase.auth.getUser();
+      if (userError || !user) throw new Error("User not authenticated");
+
+      // Gabungkan tanggal & jam jadi pickup_datetime (format ISO - string)
+      const pickup_datetime = new Date(
+        `${pickupDate}T${pickupTime}`
+      ).toISOString();
+
+      // Generate reference number
+      const reference_number = generateReferenceNumber();
+
+      // Insert ke tabel transactions (with calculated points from state)
+      const { data: trx, error: trxError } = await supabase
+        .from("transactions")
+        .insert([
+          {
+            user_id: user.id,
+            type: "ecopick",
+            status: "pending",
+            trash_category_id: selectedCategory.id,
+            weight: weightNum,
+            location_address: DEFAULT_ADDRESS,
+            pickup_datetime,
+            notes,
+            total_points: calculatedPoints,
+            reference_number,
+          },
+        ])
+        .select()
+        .single();
+
+      if (trxError) throw trxError;
+
+      // For success summary UI
+      setSuccessData({
+        ...trx,
+        category: selectedCategory.name,
+        estimatedPoints: calculatedPoints,
+        pickup_datetime,
+        weight: weightNum,
+        pickupTime:
+          TIME_SLOTS.find((s) => s.value === pickupTime)?.label || pickupTime,
+        pickupDate,
+        location: DEFAULT_ADDRESS,
+        reference_number,
+      });
+      setIsSuccess(true);
+    } catch (err: any) {
+      alert(
+        "Gagal menjadwalkan penjemputan.\n\n" +
+          (err?.message || "Terjadi kesalahan.")
+      );
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  // Reset and go home
+  const handleGoHome = () => {
+    setIsSuccess(false);
+    setSuccessData(null);
+    router.push("/dashboard");
+  };
+
+  // --- RENDER SUKSES ---
+  if (isSuccess && successData) {
+    // Tampilkan halaman sukses dengan styling sesuai instruksi
+    return (
+      <main className="bg-gray-50 min-h-screen p-4 flex items-center justify-center">
+        <div className="w-full max-w-lg mx-auto">
+          {/* Header */}
+          <div className="flex flex-col items-center mb-8 mt-6">
+            <div className="relative">
+              <span className="w-20 h-20 rounded-full flex items-center justify-center bg-green-100">
+                <Truck className="w-11 h-11 text-green-600" />
+              </span>
+              <span className="absolute -bottom-1 -right-1 flex items-center justify-center bg-white rounded-full border border-green-300 shadow w-7 h-7">
+                <BadgeCheck className="w-5 h-5 text-green-500" />
+              </span>
+            </div>
+            <h2 className="font-extrabold text-2xl text-gray-900 mt-4">
+              EcoPick Berhasil
+            </h2>
+            <p className="text-gray-500 text-center mt-2 max-w-xs">
+              Permintaan penjemputan Anda telah kami terima. Petugas kami akan menuju lokasi Anda sesuai jadwal.
+            </p>
+          </div>
+
+          {/* Card Ringkasan */}
+          <div className="bg-white rounded-3xl shadow p-6 mb-6">
+            <div className="flex items-center justify-between mb-5">
+              <div className="font-bold text-base text-gray-800">Ringkasan penjemputan</div>
+              <span className="inline-flex items-center px-3 py-1 rounded-full text-xs font-bold bg-blue-100 text-blue-600 border border-blue-200">
+                MENUNGGU PENJEMPUTAN
+              </span>
+            </div>
+            <ul className="space-y-4 mb-5">
+              <li className="flex items-start gap-3">
+                <Clock className="w-5 h-5 text-green-500 mt-0.5" />
+                <span>
+                  <span className="block font-semibold text-gray-700">{successData.pickupDate && successData.pickupTime
+                    ? TIME_SLOTS.find(s => s.value === pickupTime)?.label
+                      ? `${successData.pickupTime}, ${new Date(successData.pickupDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}` 
+                      : `${new Date(successData.pickup_datetime).toLocaleString("id-ID", {
+                        day: "2-digit",
+                        month: "long",
+                        year: "numeric",
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}`
+                    : ""}
+                  </span>
+                  <span className="block text-xs text-gray-500">Tanggal & Waktu Penjemputan</span>
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Pin className="w-5 h-5 text-green-500 mt-0.5" />
+                <span>
+                  <span className="block font-semibold text-gray-700">{successData.location}</span>
+                  <span className="block text-xs text-gray-500">Lokasi Penjemputan</span>
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <FileStack className="w-5 h-5 text-green-500 mt-0.5" />
+                <span>
+                  <span className="block font-semibold text-gray-700">{successData.category}</span>
+                  <span className="block text-xs text-gray-500">Kategori Sampah</span>
+                </span>
+              </li>
+              <li className="flex items-start gap-3">
+                <Weight className="w-5 h-5 text-green-500 mt-0.5" />
+                <span>
+                  <span className="block font-semibold text-gray-700">{Number(successData.weight).toFixed(2)} kg</span>
+                  <span className="block text-xs text-gray-500">Estimasi Berat</span>
+                </span>
+              </li>
+            </ul>
+            {/* Box green coin */}
+            <div className="bg-green-50 rounded-xl flex items-center justify-between p-4 mb-3 border border-green-100">
+              <div className="font-semibold text-green-700">Estimasi GreenCoin</div>
+              <div className="text-xl font-bold text-green-700">
+                +{successData.estimatedPoints} GC
+              </div>
+            </div>
+            <div className="text-xs text-gray-400 mt-4 text-right">
+              Nomor Referensi: <span className="font-mono">{successData.reference_number}</span>
+            </div>
+          </div>
+
+          {/* Card Langkah Selanjutnya */}
+          <div className="rounded-3xl bg-green-50/50 p-6 mb-8">
+            <div className="flex items-center gap-2 mb-4">
+              <Info className="w-5 h-5 text-green-600" />
+              <span className="font-bold text-green-800 text-lg">Langkah selanjutnya</span>
+            </div>
+            <ol className="space-y-3 pl-1">
+              {[
+                "Pisahkan sampah sesuai kategori untuk memudahkan petugas.",
+                "Pastikan sampah sudah terbungkus rapi dan mudah diangkat.",
+                "Tunggu petugas menghubungi Anda sebelum penjemputan.",
+              ].map((txt, idx) => (
+                <li key={idx} className="flex items-start gap-3">
+                  <span className="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center font-bold text-green-700">
+                    {idx + 1}
+                  </span>
+                  <span className="text-gray-700 mt-1">{txt}</span>
+                </li>
+              ))}
+            </ol>
+          </div>
+
+          <button
+            type="button"
+            className="w-full py-4 rounded-full border border-gray-200 text-gray-700 font-bold text-lg shadow-sm bg-white transition hover:bg-gray-50"
+            onClick={handleGoHome}
+          >
+            Kembali ke beranda
+          </button>
+        </div>
+      </main>
+    );
+  }
+
+  // --- DEFAULT FORM RENDER ---
   return (
     <main className="p-8 bg-gray-50 min-h-screen">
       {/* Header */}
@@ -21,7 +314,11 @@ export default function PickupPage() {
       </div>
 
       {/* Main Content */}
-      <div className="grid grid-cols-1 lg:[grid-template-columns:2fr_1fr] gap-8">
+      <form
+        className="grid grid-cols-1 lg:[grid-template-columns:2fr_1fr] gap-8"
+        onSubmit={handleSchedule}
+        autoComplete="off"
+      >
         {/* Left Column */}
         <div>
           {/* Card 1: Upload Waste Photos */}
@@ -42,12 +339,14 @@ export default function PickupPage() {
                 SVG, PNG, JPG or GIF (max. 3MB)
               </span>
               <input
+                ref={fileInputRef}
                 id="waste-upload"
                 name="waste-upload"
                 type="file"
                 accept="image/*"
                 className="hidden"
                 multiple
+                disabled
               />
             </label>
           </div>
@@ -57,24 +356,29 @@ export default function PickupPage() {
               <FolderOpen className="w-5 h-5 text-green-600" />
               Waste Category
             </h2>
-            {/* Category Select */}
+            {/* Category Select (from Supabase) */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Select category
+                Select category <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
                   className="block w-full rounded-lg border border-gray-300 pr-10 pl-3 py-2 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-600 appearance-none"
-                  defaultValue=""
+                  value={selectedCategoryId}
+                  onChange={(e) => setSelectedCategoryId(e.target.value)}
+                  required
+                  disabled={categories.length === 0}
                 >
                   <option value="" disabled>
-                    Select category (e.g. Plastic, Paper)
+                    {categories.length === 0
+                      ? "Loading..."
+                      : "Select category (e.g. Plastic, Paper)"}
                   </option>
-                  <option value="plastic">Plastic</option>
-                  <option value="paper">Paper</option>
-                  <option value="metal">Metal</option>
-                  <option value="glass">Glass</option>
-                  <option value="organic">Organic</option>
+                  {categories.map((c) => (
+                    <option key={c.id} value={c.id}>
+                      {c.name}
+                    </option>
+                  ))}
                 </select>
                 <ChevronDown className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
@@ -82,15 +386,26 @@ export default function PickupPage() {
             {/* Estimated Weight */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Estimated Weight (kg)
+                Estimated Weight (kg) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
                   type="number"
-                  step="0.1"
+                  step="0.01"
                   min={0}
+                  inputMode="decimal"
+                  autoComplete="off"
                   placeholder="0.0"
                   className="block w-full rounded-lg border border-gray-300 pr-12 pl-3 py-2 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-600"
+                  value={weight}
+                  onChange={(e) => {
+                    // Hanya terima angka dan desimal saja, hilangkan karakter lain
+                    const val = e.target.value.replace(/[^0-9.]/g, "");
+                    // Prevent enter multiple decimals
+                    if ((val.match(/\./g) || []).length > 1) return;
+                    setWeight(val);
+                  }}
+                  required
                 />
                 <span className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 text-sm select-none">
                   kg
@@ -106,6 +421,8 @@ export default function PickupPage() {
                 rows={3}
                 placeholder="E.g., The waste is in front of the blue gate..."
                 className="block w-full rounded-lg border border-gray-300 p-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-600 resize-none"
+                value={notes}
+                onChange={e => setNotes(e.target.value)}
               ></textarea>
             </div>
           </div>
@@ -121,46 +438,39 @@ export default function PickupPage() {
             {/* Date Selector */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                SELECT DATE
+                SELECT DATE <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
                   type="date"
                   className="block w-full rounded-lg border border-gray-300 pr-4 pl-3 py-2 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-600"
+                  value={pickupDate}
+                  onChange={e => setPickupDate(e.target.value)}
+                  required
                 />
               </div>
             </div>
             {/* Time Slots */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                AVAILABLE TIME SLOTS
+                AVAILABLE TIME SLOTS <span className="text-red-500">*</span>
               </label>
               <div className="flex flex-wrap gap-3">
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-lg border border-green-600 bg-green-50 text-green-700 font-semibold shadow-sm transition focus:outline-none focus:ring-2 focus:ring-green-300/50 bg-green-100"
-                  style={{ borderWidth: 2 }}
-                >
-                  08:00 AM
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 font-semibold shadow-sm transition hover:border-green-500 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-200"
-                >
-                  10:00 AM
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 font-semibold shadow-sm transition hover:border-green-500 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-200"
-                >
-                  01:00 PM
-                </button>
-                <button
-                  type="button"
-                  className="px-4 py-2 rounded-lg border border-gray-300 bg-gray-50 text-gray-700 font-semibold shadow-sm transition hover:border-green-500 hover:bg-green-50 focus:outline-none focus:ring-2 focus:ring-green-200"
-                >
-                  03:00 PM
-                </button>
+                {TIME_SLOTS.map(slot => (
+                  <button
+                    key={slot.value}
+                    type="button"
+                    className={`px-4 py-2 rounded-lg font-semibold shadow-sm transition focus:outline-none ${
+                      pickupTime === slot.value
+                        ? "border-2 border-green-600 bg-green-100 text-green-700"
+                        : "border border-gray-300 bg-gray-50 text-gray-700 hover:border-green-500 hover:bg-green-50 focus:ring-2 focus:ring-green-200"
+                    }`}
+                    style={pickupTime === slot.value ? { borderWidth: 2 } : {}}
+                    onClick={() => setPickupTime(slot.value)}
+                  >
+                    {slot.label}
+                  </button>
+                ))}
               </div>
             </div>
             {/* Pickup Location */}
@@ -171,7 +481,6 @@ export default function PickupPage() {
               <div className="bg-gray-100 rounded-xl flex items-center gap-3 p-3 mb-2">
                 {/* Static Map Placeholder */}
                 <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
-                  {/* Replace the src below with a static Surabaya map image as needed */}
                   <img
                     src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=128&q=80"
                     alt="Map of Surabaya"
@@ -181,15 +490,15 @@ export default function PickupPage() {
                 <div className="flex-1">
                   <span className="block text-sm font-semibold text-gray-800 mb-1 flex items-center gap-1">
                     <MapPin className="w-4 h-4 text-green-600" />
-                    Jl. Pemuda No. 12, Surabaya
+                    {DEFAULT_ADDRESS}
                   </span>
-                  <span className="text-xs text-gray-500">
-                    Default location
-                  </span>
+                  <span className="text-xs text-gray-500">Default location</span>
                 </div>
                 <a
                   href="#"
                   className="text-green-700 font-semibold text-xs px-3 py-1 border border-green-600 rounded-lg hover:bg-green-50 transition whitespace-nowrap"
+                  tabIndex={-1}
+                  onClick={e => e.preventDefault()}
                 >
                   CHANGE
                 </a>
@@ -200,17 +509,24 @@ export default function PickupPage() {
           <div className="mt-auto">
             <div className="bg-green-50 rounded-xl flex items-center justify-between p-4 mb-5 border border-green-100">
               <div className="font-medium text-gray-700">Estimated Points</div>
-              <div className="text-2xl font-bold text-green-700">+150 Pts</div>
+              <div className="text-2xl font-bold text-green-700">
+                +{calculatedPoints} Pts
+              </div>
             </div>
             <button
-              type="button"
-              className="w-full py-4 rounded-xl text-lg font-semibold bg-green-600 hover:bg-green-700 text-white shadow transition"
+              type="submit"
+              className={`w-full py-4 rounded-xl text-lg font-semibold text-white shadow transition ${
+                isLoading
+                  ? "bg-green-300 cursor-not-allowed"
+                  : "bg-green-600 hover:bg-green-700"
+              }`}
+              disabled={isLoading}
             >
-              Jadwalkan Penjemputan
+              {isLoading ? "Memproses..." : "Jadwalkan Penjemputan"}
             </button>
           </div>
         </div>
-      </div>
+      </form>
     </main>
   );
 }

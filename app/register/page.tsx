@@ -152,7 +152,7 @@ export default function Register() {
           {/* Mobile logo */}
           <div className="flex md:hidden items-center gap-3 justify-center mb-8">
             <Image
-              src="/logo-ecopoin.png"
+              src="/frame.png"
               alt="EcoPoin Logo"
               width={36}
               height={36}

@@ -28,7 +28,7 @@ export default function Home() {
         <div className="flex items-center gap-3">
           {/* Logo - replace src with local asset */}
           <Image
-            src="/logo-ecopoin.png"
+            src="/frame.png"
             alt="EcoPoin Logo"
             width={38}
             height={38}
@@ -36,7 +36,7 @@ export default function Home() {
             priority
           />
           <span className="ml-2 font-bold text-green-700 text-lg md:text-xl">
-            EcoPoin <span className="font-normal text-gray-500">Recycle & Reward</span>
+            EcoPoin
           </span>
         </div>
         <nav className="hidden md:flex items-center gap-8">

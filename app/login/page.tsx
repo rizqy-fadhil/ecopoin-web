@@ -23,19 +23,47 @@ export default function LoginPage() {
     setLoading(true);
     setError(null);
 
-    const { error } = await supabase.auth.signInWithPassword({
-      email,
-      password,
-    });
+    // 1. Lakukan login ke Supabase Auth
+    const { data: authData, error: authError } =
+      await supabase.auth.signInWithPassword({ email, password });
+
+    if (authError) {
+      setError(authError.message);
+      setLoading(false);
+      return;
+    }
+
+    const user = authData.user;
+    if (!user) {
+      setError("Login gagal. Silakan coba lagi.");
+      setLoading(false);
+      return;
+    }
+
+    // 2. Jika berhasil, cek 'role' dia di tabel profiles
+    const { data: profile, error: profileError } = await supabase
+      .from("profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    console.log("Data Profile:", profile);
+    console.log("Error Profile:", profileError);
+
+    if (profileError) {
+      console.error("Gagal mengambil profil:", profileError);
+      // Opsional: tampilkan di layar agar kamu tahu kalau error
+      // setError("Gagal verifikasi role: " + profileError.message);
+    }
+    
+    // 3. Arahkan ke rute yang sesuai
+    if (profile?.role === "admin") {
+      router.push("/admin/dashboard"); // Lempar ke area Admin
+    } else {
+      router.push("/dashboard"); // Lempar ke area User biasa
+    }
 
     setLoading(false);
-
-    if (error) {
-      setError(error.message);
-    } else {
-      // Berhasil login, arahkan ke halaman utama
-      router.push("/dashboard");
-    }
   };
 
   return (
@@ -52,7 +80,7 @@ export default function LoginPage() {
         {/* Logo - top left */}
         <div className="absolute top-10 left-12 flex items-center gap-3 z-20">
           <img
-            src="/assets/logo-ecopoin.png"
+            src="/frame.png"
             alt="EcoPoin Logo"
             className="h-10 w-auto"
           />
