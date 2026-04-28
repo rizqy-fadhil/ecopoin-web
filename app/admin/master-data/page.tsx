@@ -169,79 +169,86 @@ export default function MasterDataKonversiPoinPage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto">
-      {/* Header & Action */}
-      <div className="flex flex-col md:flex-row md:items-center md:justify-between gap-2 mb-7">
+    <div className="max-w-4xl mx-auto p-8 space-y-8">
+      {/* Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-slate-900 mb-1">
-            Master Data Konversi Poin
-          </h1>
-          <p className="text-gray-500 text-sm">
+          <div className="flex items-center gap-3">
+            <h1 className="text-2xl font-bold text-gray-900">Master Data Konversi Poin</h1>
+            <span className="px-2.5 py-0.5 text-xs font-semibold rounded-full bg-emerald-100 text-emerald-700">
+              {categories.length} Kategori
+            </span>
+          </div>
+          <p className="text-sm text-gray-500 mt-1">
             Atur nilai tukar GreenCoin per kilogram untuk setiap jenis sampah.
           </p>
         </div>
         <button
-          className="bg-green-500 hover:bg-green-600 text-white rounded-lg px-4 py-2 font-semibold shadow-sm transition"
+          className="inline-flex items-center gap-2 px-5 py-2.5 bg-emerald-600 hover:bg-emerald-700 text-white rounded-xl font-semibold text-sm shadow-lg shadow-emerald-600/20 transition transform active:scale-[0.98]"
           onClick={openAddModal}
         >
-          + Tambah
+          + Tambah Kategori
         </button>
       </div>
 
       {/* List */}
-      <div className="flex flex-col gap-5">
+      <div className="bg-white rounded-xl shadow-sm border border-gray-100">
         {isLoading ? (
-          <div className="text-center text-gray-400 py-12">Memuat data...</div>
+          <div className="text-center text-gray-500 py-16 text-sm">Memuat data...</div>
         ) : categories.length === 0 ? (
-          <div className="text-center text-gray-400 py-12">Belum ada kategori sampah.</div>
+          <div className="text-center text-gray-500 py-16 text-sm">Belum ada kategori sampah.</div>
         ) : (
-          categories.map((cat) => (
-            <div
-              key={cat.id}
-              className="flex items-center justify-between border border-gray-100 rounded-xl shadow-sm py-4 px-5 bg-white"
-            >
-              {/* Left: Icon & Info */}
-              <div className="flex items-center gap-4">
-                <div className="bg-green-100 rounded-full p-2">
-                  <Recycle className="w-6 h-6 text-green-600" />
+          <ul className="divide-y divide-gray-100">
+            {categories.map((cat) => (
+              <li
+                key={cat.id}
+                className="flex items-center justify-between py-4 px-6 hover:bg-gray-50/50 transition"
+              >
+                {/* Left: Icon & Info */}
+                <div className="flex items-center gap-4">
+                  <div className="w-11 h-11 flex items-center justify-center bg-emerald-100 rounded-xl">
+                    <Recycle className="w-5 h-5 text-emerald-600" />
+                  </div>
+                  <div>
+                    <div className="font-semibold text-gray-800">{cat.name}</div>
+                    <div className="text-xs text-emerald-600 mt-0.5 font-medium">
+                      {cat.point_per_unit} GC / {cat.unit}
+                    </div>
+                  </div>
                 </div>
-                <div>
-                  <div className="font-bold text-gray-900">{cat.name}</div>
-                  <div className="text-xs text-green-600 mt-0.5">{`${cat.point_per_unit} GC / ${cat.unit}`}</div>
+                {/* Right: Actions */}
+                <div className="flex gap-1 items-center">
+                  <button
+                    className="p-2 rounded-xl hover:bg-blue-50 transition"
+                    title="Edit"
+                    onClick={() => openEditModal(cat)}
+                  >
+                    <Pencil className="w-4 h-4 text-blue-500" />
+                  </button>
+                  <button
+                    className="p-2 rounded-xl hover:bg-red-50 transition"
+                    title="Hapus"
+                    onClick={() => handleDelete(cat.id)}
+                  >
+                    <Trash2 className="w-4 h-4 text-red-500" />
+                  </button>
                 </div>
-              </div>
-              {/* Right: Actions */}
-              <div className="flex gap-2 items-center">
-                <button
-                  className="p-2 rounded-full hover:bg-blue-50 transition"
-                  title="Edit"
-                  onClick={() => openEditModal(cat)}
-                >
-                  <Pencil className="w-4 h-4 text-blue-400" />
-                </button>
-                <button
-                  className="p-2 rounded-full hover:bg-red-50 transition"
-                  title="Hapus"
-                  onClick={() => handleDelete(cat.id)}
-                >
-                  <Trash2 className="w-4 h-4 text-rose-400" />
-                </button>
-              </div>
-            </div>
-          ))
+              </li>
+            ))}
+          </ul>
         )}
       </div>
 
       {/* Modal */}
       {isModalOpen && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/50">
-          <div className="bg-white rounded-xl shadow-lg p-7 w-[95vw] max-w-md relative">
-            <h2 className="text-lg font-bold mb-5">
-              {editId ? "Edit Kategori" : "Tambah Kategori"}
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white rounded-2xl shadow-xl p-8 w-[95vw] max-w-md relative border border-gray-100">
+            <h2 className="text-lg font-bold text-gray-900 mb-6">
+              {editId ? "Edit Kategori" : "Tambah Kategori Baru"}
             </h2>
-            <form onSubmit={handleSave} className="flex flex-col gap-4">
+            <form onSubmit={handleSave} className="flex flex-col gap-5">
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-800 mb-1.5 ml-1">
                   Nama Kategori
                 </label>
                 <input
@@ -252,11 +259,11 @@ export default function MasterDataKonversiPoinPage() {
                   }
                   required
                   placeholder="Nama kategori sampah"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-400 focus:outline-none text-gray-900"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none transition"
                 />
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">
+                <label className="block text-sm font-semibold text-gray-800 mb-1.5 ml-1">
                   Poin per Kg
                 </label>
                 <input
@@ -266,26 +273,25 @@ export default function MasterDataKonversiPoinPage() {
                   onChange={(e) =>
                     setFormData((f) => ({
                       ...f,
-                      // jika diketik kosong pada input number, e.target.value === ""
                       point_per_unit: e.target.value,
                     }))
                   }
                   required
                   placeholder="Masukkan nilai poin (cth: 10)"
-                  className="w-full border border-gray-200 rounded-lg px-4 py-2.5 focus:ring-2 focus:ring-green-400 focus:outline-none text-gray-900"
+                  className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm text-gray-900 placeholder-gray-400 focus:ring-2 focus:ring-emerald-500 focus:border-emerald-500 focus:outline-none transition"
                 />
               </div>
-              <div className="flex justify-end gap-3 mt-3">
+              <div className="flex justify-end gap-3 mt-2">
                 <button
                   type="button"
                   onClick={closeModal}
-                  className="px-4 py-2 rounded-lg bg-gray-100 text-gray-700 font-semibold hover:bg-gray-200 transition"
+                  className="px-5 py-2.5 rounded-xl bg-gray-100 text-gray-700 font-semibold text-sm hover:bg-gray-200 transition"
                 >
                   Batal
                 </button>
                 <button
                   type="submit"
-                  className="px-4 py-2 rounded-lg bg-green-500 hover:bg-green-600 text-white font-semibold transition"
+                  className="px-5 py-2.5 rounded-xl bg-emerald-600 hover:bg-emerald-700 text-white font-semibold text-sm shadow-lg shadow-emerald-600/20 transition transform active:scale-[0.98]"
                 >
                   Simpan
                 </button>

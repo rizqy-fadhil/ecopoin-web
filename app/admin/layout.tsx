@@ -3,52 +3,45 @@
 import React from "react";
 import Link from "next/link";
 import { useRouter, usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Users,
-  Truck,
-  MoveRight,
-  CircleDollarSign,
-  Database,
-  LogOut,
-} from "lucide-react";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { LogOut } from "lucide-react";
 
 // ADMIN SIDEBAR DATA
 type SidebarItem = {
   label: string;
-  icon: React.ReactNode;
+  icon: string;
   href: string;
 };
 
 const sidebarMenu: SidebarItem[] = [
   {
     label: "Dashboard",
-    icon: <LayoutDashboard className="w-5 h-5 mr-2" />,
+    icon: "/overview.png",
     href: "/admin/dashboard",
   },
   {
     label: "User Management",
-    icon: <Users className="w-5 h-5 mr-2" />,
+    icon: "/users.png",
     href: "/admin/user-management",
   },
   {
     label: "EcoPick Mgt",
-    icon: <Truck className="w-5 h-5 mr-2" />,
+    icon: "/ecopick.png",
     href: "/admin/ecopick",
   },
   {
     label: "EcoDrop Mgt",
-    icon: <MoveRight className="w-5 h-5 mr-2" />,
+    icon: "/ecodrop.png",
     href: "/admin/ecodrop",
   },
   {
     label: "GreenCoin Mgt",
-    icon: <CircleDollarSign className="w-5 h-5 mr-2" />,
+    icon: "/greencoin.png",
     href: "/admin/greencoin",
   },
   {
     label: "Master Data",
-    icon: <Database className="w-5 h-5 mr-2" />,
+    icon: "/settings.png",
     href: "/admin/master-data",
   },
 ];
@@ -59,7 +52,7 @@ function AdminSidebar({ onLogout }: { onLogout: () => void }) {
       <div>
         {/* Sidebar Header */}
         <div className="px-6 py-8 flex items-center gap-3 border-b border-slate-800">
-          <img src="/frame.png" alt="EcoPoin Logo" className="h-10 w-10 rounded-full" />
+          <img src="/frame.png" alt="EcoPoin Logo" className="h-8 w-8 rounded-full" />
           <div>
             <div className="text-xl font-bold leading-none">EcoPoin</div>
             <div className="text-xs font-semibold opacity-80 tracking-wide">Admin Panel</div>
@@ -73,7 +66,7 @@ function AdminSidebar({ onLogout }: { onLogout: () => void }) {
               href={item.href}
               className="flex items-center px-4 py-2 my-1 rounded-lg transition-colors hover:bg-slate-700 hover:text-green-300 font-medium text-sm"
             >
-              {item.icon}
+              <img src={item.icon} alt={item.label} className="w-4 h-4 mr-2 object-contain brightness-0 invert" />
               {item.label}
             </Link>
           ))}
@@ -113,11 +106,12 @@ export default function AdminLayout({
   const router = useRouter();
   const pathname = usePathname();
 
-  // Real logout logic bisa Anda modifikasi
   const handleLogout = async () => {
-    // Example: Clear supabase/session/cookie/client-side auth then redirect
-    // If you use Supabase: await supabase.auth.signOut();
-    // For demo, just redirect:
+    const supabase = createBrowserClient(
+      process.env.NEXT_PUBLIC_SUPABASE_URL!,
+      process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+    );
+    await supabase.auth.signOut();
     router.push("/login");
   };
 

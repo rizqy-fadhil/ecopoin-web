@@ -42,7 +42,7 @@ type Transaction = {
   id: number;
   type: string;
   status: string;
-  total_points: number | null; 
+  total_points: number | null;
   weight: number | null;
   created_at: string;
   trash_category?: {
@@ -73,7 +73,7 @@ function SummaryCard({ icon, bg, label, value }: SummaryCardProps) {
         {icon}
       </div>
       <div>
-        <div className="text-xs text-gray-500 font-medium">{label}</div>
+        <div className="text-xs text-gray-600 font-medium">{label}</div>
         <div className="text-xl font-semibold text-gray-900">{value}</div>
       </div>
     </div>
@@ -105,12 +105,12 @@ function StatusBadge({
 }
 
 const CATEGORIES_COLORS = [
-  "#16a34a", 
-  "#2563eb", 
-  "#eab308", 
-  "#f97316", 
-  "#a21caf", 
-  "#ef4444", 
+  "#16a34a",
+  "#2563eb",
+  "#eab308",
+  "#f97316",
+  "#a21caf",
+  "#ef4444",
 ];
 
 export default function Dashboard() {
@@ -128,7 +128,7 @@ export default function Dashboard() {
         .from('trash_categories')
         .select('id, name')
         .order('name');
-        
+
       if (catErr) console.error("Error getting trash_categories:", catErr);
 
       const { data: { user }, error: userErr } = await supabase.auth.getUser();
@@ -154,7 +154,7 @@ export default function Dashboard() {
       if (!ignore) {
         setCategoriesMaster(categoriesData ?? []);
         setProfile(profData ? { total_points: profData.total_points ?? 0 } : { total_points: 0 });
-        
+
         // PERBAIKAN: Mapping data trash_categories (Object, bukan Array)
         const normalizedTransactions: Transaction[] = ((dataRaw ?? []) as any[]).map(
           (t) => ({
@@ -162,7 +162,7 @@ export default function Dashboard() {
             trash_category: t.trash_categories ? { name: t.trash_categories.name } : null,
           })
         );
-        
+
         setTransactions(normalizedTransactions ?? []);
         setLoading(false);
       }
@@ -208,14 +208,14 @@ export default function Dashboard() {
         categoriesMap[catName] = (categoriesMap[catName] || 0) + (trx.weight ?? 0);
       }
     });
-    
+
     const categoriesBreakdown: { name: string; total: number }[] =
       categoriesMaster.map((cat) => ({
         name: cat.name,
         total: categoriesMap[cat.name] || 0,
       }))
-      .filter((x) => x.total > 0)
-      .sort((a, b) => b.total - a.total);
+        .filter((x) => x.total > 0)
+        .sort((a, b) => b.total - a.total);
 
     const trxCount = transactions.length;
     let recents: Transaction[] = [];
@@ -374,7 +374,7 @@ export default function Dashboard() {
             <ul className="flex-1 flex flex-col gap-0.5">
               {recentTransactions.length === 0 ? (
                 <li>
-                  <div className="text-gray-400 text-center py-5">No Transactions Yet.</div>
+                  <div className="text-gray-500 text-center py-5">No Transactions Yet.</div>
                 </li>
               ) : (
                 recentTransactions.map((tx) => (
@@ -382,17 +382,10 @@ export default function Dashboard() {
                     {transactionIcon(tx)}
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-800 leading-none truncate">{typeLabel(tx)}</div>
-                      <div className="flex items-center text-xs text-gray-400 pt-0.5 gap-2">
-                        <span>
-                          {new Date(tx.created_at).toLocaleDateString("en-GB", {
-                            day: "2-digit", month: "short", year: "numeric",
-                          })}
-                        </span>
-                        {tx.trash_category?.name && (
-                          <span className="px-1 rounded bg-gray-50 border text-gray-500 border-gray-100 text-[11px] font-medium">
-                            {tx.trash_category.name}
-                          </span>
-                        )}
+                      <div className="text-xs text-gray-500 pt-0.5">
+                        {new Date(tx.created_at).toLocaleDateString("en-GB", {
+                          day: "2-digit", month: "short", year: "numeric",
+                        })}
                       </div>
                     </div>
                     <div className="flex-shrink-0 pr-2">{transactionValueGC(tx)}</div>
@@ -413,19 +406,17 @@ export default function Dashboard() {
           {categoriesBreakdown.length > 0 ? (
             <div className="flex flex-col md:flex-row items-center gap-8 justify-center">
               <div className="flex-1 flex justify-center">
-                <div className="w-[230px] h-[230px]">
+                <div className="w-[320px] h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart>
+                    <PieChart margin={{ top: 30, right: 60, bottom: 30, left: 60 }}>
                       <Pie
                         data={categoriesBreakdown}
                         dataKey="total"
                         nameKey="name"
                         cx="50%"
                         cy="50%"
-                        outerRadius={90}
+                        outerRadius={85}
                         innerRadius={55}
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} (${Math.round((percent ?? 0) * 100)}%)`}
                         isAnimationActive={false}
                       >
                         {categoriesBreakdown.map((entry, i) => (
@@ -450,8 +441,8 @@ export default function Dashboard() {
                         <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: CATEGORIES_COLORS[i % CATEGORIES_COLORS.length] }}></span>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
-                            <span className="text-sm font-medium">{cat.name}</span>
-                            <span className="text-xs text-gray-500 ml-4">{numberFormat(cat.total)} kg</span>
+                            <span className="text-sm font-semibold text-gray-800">{cat.name}</span>
+                            <span className="text-xs text-gray-600 ml-4">{numberFormat(cat.total)} kg</span>
                           </div>
                           <div className="w-full bg-gray-100 rounded-full h-2 mt-1.5">
                             <div
@@ -467,7 +458,7 @@ export default function Dashboard() {
               </div>
             </div>
           ) : (
-            <div className="text-gray-400 text-center w-full py-12">No waste data yet.</div>
+            <div className="text-gray-500 text-center w-full py-12">No waste data yet.</div>
           )}
         </div>
       </section>

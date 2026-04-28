@@ -2,9 +2,13 @@
 
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 import Link from "next/link";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import type { SupabaseClient } from "@supabase/supabase-js";
+
+const bgUrl =
+  "https://lh3.googleusercontent.com/aida-public/AB6AXuADF9rNS5fnwii-GpWiepAv7MEtRhAODOBXQtRvNZ3VTLCBCpDGx21mcNDJUOu2-x4QFtpR3sblsljpFwz2PgJYVjrI9rOWkhfbWKMF4rzFKaFdDOvMjukp7-XLVMWhEagxMppRKaH8ffoz6jJPJQIpFtjKRlTZJ-h5mHxt385cX79PgymEAVJtoqIRKbnhzN5liEIG4P7ZR6wh5pSi3tp7a0NdLCaFw-PbTpedUQGSdrGmEHP0l4Ljibp0kODQqfo0yddRPxl_lZUi";
 
 export default function LoginPage() {
   const [email, setEmail] = useState("");
@@ -52,8 +56,6 @@ export default function LoginPage() {
 
     if (profileError) {
       console.error("Gagal mengambil profil:", profileError);
-      // Opsional: tampilkan di layar agar kamu tahu kalau error
-      // setError("Gagal verifikasi role: " + profileError.message);
     }
     
     // 3. Arahkan ke rute yang sesuai
@@ -67,90 +69,78 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-stretch">
-      {/* Sisi Kiri - Banner */}
-      <div
-        className="hidden md:flex w-1/2 relative flex-col justify-center items-center p-16"
-        style={{
-          backgroundImage: `linear-gradient(rgba(16, 78, 41, 0.85), rgba(16, 78, 41, 0.85)), url('/assets/bg-register.jpg')`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        {/* Logo - top left */}
-        <div className="absolute top-10 left-12 flex items-center gap-3 z-20">
-          <img
-            src="/frame.png"
-            alt="EcoPoin Logo"
-            className="h-10 w-auto"
+    <main className="min-h-screen grid lg:grid-cols-2 font-[Inter,sans-serif] antialiased overflow-x-hidden">
+      {/* ===== Left Side — Hero ===== */}
+      <section className="relative hidden lg:flex flex-col justify-center p-12 overflow-hidden bg-[#15803d]">
+        {/* Background image + overlay */}
+        <div className="absolute inset-0 z-0">
+          <div className="absolute inset-0 bg-[#15803d]/40 z-10" />
+          <div
+            className="w-full h-full bg-center bg-cover"
+            style={{ backgroundImage: `url("${bgUrl}")` }}
           />
-          <span className="text-white text-2xl font-extrabold tracking-tight">
-            EcoPoin
-          </span>
         </div>
 
-        {/* Center Content */}
-        <div className="flex flex-col items-center text-center max-w-md px-4 z-20">
-          {/* Decorative icon */}
-          <div className="mb-6 w-20 h-20 rounded-full bg-white/10 border border-white/20 flex items-center justify-center backdrop-blur-sm">
-            <svg viewBox="0 0 24 24" fill="none" className="w-10 h-10 text-green-300" stroke="currentColor" strokeWidth={1.5}>
-              <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 9V5.25A2.25 2.25 0 0 0 13.5 3h-6a2.25 2.25 0 0 0-2.25 2.25v13.5A2.25 2.25 0 0 0 7.5 21h6a2.25 2.25 0 0 0 2.25-2.25V15m3 0 3-3m0 0-3-3m3 3H9" />
-            </svg>
+        <div className="relative z-20 max-w-lg">
+          {/* Logo */}
+          <div className="flex items-center gap-2 text-white mb-8">
+            <div className="size-10 bg-white/20 backdrop-blur-md rounded-xl flex items-center justify-center">
+              <Image src="/frame.png" alt="EcoPoin" width={24} height={24} />
+            </div>
+            <h2 className="text-2xl font-bold tracking-tight">EcoPoin</h2>
           </div>
 
-          <h2 className="text-4xl font-bold text-white leading-tight mb-4">
-            Selamat Datang<br />
-            Kembali di{" "}
-            <span className="text-green-300">EcoPoin</span>
-          </h2>
+          {/* Headline */}
+          <h1 className="text-5xl font-black text-white leading-tight mb-6">
+            Selamat Datang{" "}
+            <span className="text-[#dcfce7]">Kembali</span> di EcoPoin
+          </h1>
 
-          <p className="text-white/80 text-base leading-relaxed mb-8">
-            Lanjutkan kontribusimu untuk Surabaya yang lebih hijau. Pantau tabungan sampahmu dan tukarkan poin dengan mudah.
+          <p className="text-lg text-white/80 leading-relaxed mb-12">
+            Lanjutkan kontribusimu untuk Surabaya yang lebih hijau. Pantau
+            tabungan sampahmu dan tukarkan poin dengan mudah.
           </p>
 
-          {/* Stats row */}
-          <div className="flex gap-6 mt-2">
-            {[
-              { value: "10K+", label: "Pengguna Aktif" },
-              { value: "50T", label: "Sampah Dikelola" },
-              { value: "4.9★", label: "Rating App" },
-            ].map((stat) => (
-              <div key={stat.label} className="text-center">
-                <div className="text-green-300 text-xl font-bold">{stat.value}</div>
-                <div className="text-white/60 text-xs mt-0.5">{stat.label}</div>
-              </div>
-            ))}
+          {/* Stats */}
+          <div className="grid grid-cols-2 gap-6">
+            <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
+              <p className="text-2xl font-bold text-white">4.8/5</p>
+              <p className="text-sm text-white/60">Rating Pengguna</p>
+            </div>
+            <div className="bg-white/10 backdrop-blur-md p-4 rounded-xl border border-white/10">
+              <p className="text-2xl font-bold text-white">24/7</p>
+              <p className="text-sm text-white/60">Layanan Jemput</p>
+            </div>
           </div>
         </div>
-      </div>
+      </section>
 
-      {/* Sisi Kanan - Area Form */}
-      <div className="w-full md:w-1/2 bg-white flex flex-col justify-center items-center px-8 py-12 min-h-screen">
-        <div className="w-full max-w-md">
+      {/* ===== Right Side — Form ===== */}
+      <section className="flex flex-col justify-center items-center px-6 py-12 lg:px-20 bg-[#f8fbf9]">
+        <div className="w-full max-w-[440px]">
           {/* Mobile logo */}
-          <div className="flex md:hidden items-center gap-3 justify-center mb-8">
-            <img
-              src="/assets/logo-ecopoin.png"
-              alt="EcoPoin Logo"
-              className="h-9 w-auto"
-            />
+          <div className="lg:hidden flex items-center gap-2 mb-8 justify-center">
+            <Image src="/frame.png" alt="EcoPoin" width={30} height={30} />
+            <h2 className="text-2xl font-bold text-[#0e1b13]">EcoPoin</h2>
           </div>
 
-          {/* Header Form - centered */}
-          <div className="text-center mb-8">
-            <h1 className="text-3xl font-bold text-gray-900">Masuk ke Akun Anda</h1>
-            <p className="text-gray-500 mt-2 text-sm">
+          {/* Header */}
+          <div className="mb-10 text-center lg:text-left">
+            <h2 className="text-3xl font-bold text-[#0e1b13] mb-2">
+              Masuk ke Akun Anda
+            </h2>
+            <p className="text-[#50956a]">
               Masukkan detail akun untuk melanjutkan.
             </p>
           </div>
 
           {/* Form */}
-          <form className="space-y-5" onSubmit={handleSubmit}>
+          <form onSubmit={handleSubmit} className="space-y-5">
             {/* Email */}
             <div>
               <label
                 htmlFor="email"
-                className="block text-sm font-semibold text-green-900 mb-1"
+                className="block text-sm font-semibold text-[#0e1b13] mb-1.5 ml-1"
               >
                 Email
               </label>
@@ -160,23 +150,23 @@ export default function LoginPage() {
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                placeholder="Masukkan email"
-                className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition text-gray-900"
+                placeholder="nama@email.com"
+                className="w-full rounded-xl border border-[#d1e6d8] bg-white px-4 py-3 text-sm text-[#0e1b13] placeholder-[#50956a]/60 focus:border-[#16a249] focus:ring-1 focus:ring-[#16a249] outline-none transition-all"
               />
             </div>
 
-            {/* Kata Sandi & Lupa */}
+            {/* Kata Sandi */}
             <div>
-              <div className="flex justify-between items-center mb-1">
+              <div className="flex items-center justify-between mb-1.5 ml-1">
                 <label
                   htmlFor="password"
-                  className="text-sm font-semibold text-green-900"
+                  className="block text-sm font-semibold text-[#0e1b13]"
                 >
                   Kata Sandi
                 </label>
                 <a
                   href="#"
-                  className="text-sm text-green-600 font-medium hover:underline"
+                  className="text-xs font-bold text-[#16a249] hover:text-[#15803d] transition-colors"
                   tabIndex={0}
                   onClick={(e) => {
                     e.preventDefault();
@@ -192,71 +182,78 @@ export default function LoginPage() {
                 onChange={(e) => setPassword(e.target.value)}
                 required
                 placeholder="Masukkan kata sandi"
-                className="w-full border border-gray-200 rounded-xl py-3 px-4 focus:outline-none focus:ring-2 focus:ring-green-400 transition text-gray-900"
+                className="w-full rounded-xl border border-[#d1e6d8] bg-white px-4 py-3 text-sm text-[#0e1b13] placeholder-[#50956a]/60 focus:border-[#16a249] focus:ring-1 focus:ring-[#16a249] outline-none transition-all"
               />
             </div>
 
-            {/* Tombol Submit */}
-            <button
-              type="submit"
-              disabled={loading}
-              className="w-full bg-green-600 hover:bg-green-700 text-white font-bold rounded-full py-3 mt-2 flex justify-center items-center transition-colors shadow-md shadow-green-200"
-            >
-              {loading ? "Masuk..." : "Masuk Sekarang"}
-            </button>
+            {/* Submit Button */}
+            <div className="pt-2">
+              <button
+                type="submit"
+                disabled={loading}
+                className="w-full h-12 flex items-center justify-center rounded-xl bg-[#16a249] text-white font-bold text-base shadow-lg shadow-[#16a249]/20 hover:bg-[#15803d] transition-all transform active:scale-[0.98] disabled:opacity-60"
+              >
+                {loading ? "Masuk..." : "Masuk Sekarang"}
+              </button>
+            </div>
           </form>
 
           {/* Error */}
           {error && (
-            <div className="mt-4 text-red-600 text-center text-sm bg-red-50 rounded-xl py-2 px-3">
+            <div className="mt-4 text-red-700 text-center text-sm bg-red-50 rounded-xl py-2.5 px-4 border border-red-100">
               {error}
             </div>
           )}
 
           {/* Divider */}
-          <div className="flex items-center gap-4 my-6">
-            <hr className="flex-grow border-gray-200" />
-            <span className="text-gray-400 text-xs font-bold">
-              ATAU MASUK DENGAN
-            </span>
-            <hr className="flex-grow border-gray-200" />
+          <div className="relative my-8">
+            <div className="absolute inset-0 flex items-center">
+              <div className="w-full border-t border-[#d1e6d8]" />
+            </div>
+            <div className="relative flex justify-center text-xs uppercase">
+              <span className="bg-[#f8fbf9] px-4 text-[#50956a] font-medium tracking-wider">
+                Atau masuk dengan
+              </span>
+            </div>
           </div>
 
           {/* Social Buttons */}
-          <div className="flex gap-3">
+          <div className="grid grid-cols-2 gap-4">
             <button
               type="button"
-              className="flex-1 flex items-center justify-center border border-gray-200 rounded-full py-2.5 text-gray-800 font-semibold hover:bg-gray-50 transition"
+              className="flex h-12 items-center justify-center gap-3 rounded-xl border border-[#d1e6d8] bg-white px-4 text-sm font-bold text-[#0e1b13] hover:bg-gray-50 transition-colors shadow-sm"
             >
-              <img
-                src="/assets/google-icon.svg"
-                alt="Google"
-                className="h-5 w-5 mr-2"
-              />
+              <svg aria-hidden="true" viewBox="0 0 48 48" className="w-5 h-5">
+                <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.603 32.659 29.129 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917Z" />
+                <path fill="#FF3D00" d="M6.306 14.691 12.88 19.51C14.657 15.108 18.967 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691Z" />
+                <path fill="#4CAF50" d="M24 44c5.018 0 9.713-1.922 13.207-5.051l-6.097-5.162C29.066 35.091 26.645 36 24 36c-5.108 0-9.568-3.317-11.261-7.946l-6.522 5.025C9.52 39.556 16.227 44 24 44Z" />
+                <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a11.96 11.96 0 0 1-4.193 5.787l.003-.002 6.097 5.162C36.777 39.318 44 34 44 24c0-1.341-.138-2.65-.389-3.917Z" />
+              </svg>
               Google
             </button>
             <button
               type="button"
-              className="flex-1 flex items-center justify-center border border-gray-200 rounded-full py-2.5 text-gray-800 font-semibold hover:bg-gray-50 transition"
+              className="flex h-12 items-center justify-center gap-3 rounded-xl border border-[#d1e6d8] bg-white px-4 text-sm font-bold text-[#0e1b13] hover:bg-gray-50 transition-colors shadow-sm"
             >
-              <img
-                src="/assets/facebook-icon.svg"
-                alt="Facebook"
-                className="h-5 w-5 mr-2"
-              />
+              <svg aria-hidden="true" viewBox="0 0 24 24" className="w-5 h-5 text-blue-600" fill="currentColor">
+                <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.62.77-1.62 1.56V12h2.76l-.44 2.89h-2.32v6.99A10 10 0 0 0 22 12Z" />
+              </svg>
               Facebook
             </button>
           </div>
 
           {/* Footer */}
-          <div className="mt-8 text-center text-gray-600 text-sm">
-            Belum punya akun?{" "}
-            <Link href="/register" className="text-green-700 font-bold hover:underline">
+          <p className="mt-10 text-center text-sm text-[#50956a]">
+            Belum punya akun?
+            <Link
+              href="/register"
+              className="font-bold text-[#16a249] hover:text-[#15803d] ml-1 underline-offset-4 hover:underline transition-all"
+            >
               Daftar
             </Link>
-          </div>
+          </p>
         </div>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 }

@@ -180,7 +180,7 @@ export default function GreenCoinAdminPage() {
       {/* Header */}
       <div className="flex items-center gap-3 mb-1">
         <Coins className="w-8 h-8 text-orange-400" />
-        <h1 className="text-2xl md:text-3xl font-bold tracking-tight">
+        <h1 className="text-2xl md:text-3xl font-bold text-slate-900 tracking-tight">
           GreenCoin Transactions
         </h1>
       </div>
