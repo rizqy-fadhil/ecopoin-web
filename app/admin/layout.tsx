@@ -48,8 +48,8 @@ const sidebarMenu: SidebarItem[] = [
 
 function AdminSidebar({ onLogout }: { onLogout: () => void }) {
   return (
-    <aside className="flex flex-col h-screen w-64 bg-slate-900 text-white justify-between">
-      <div>
+    <aside className="sticky top-0 h-screen w-64 shrink-0 overflow-y-auto bg-slate-900 text-white">
+      <div className="flex flex-col h-full">
         {/* Sidebar Header */}
         <div className="px-6 py-8 flex items-center gap-3 border-b border-slate-800">
           <img src="/frame.png" alt="EcoPoin Logo" className="h-8 w-8 rounded-full" />
@@ -71,9 +71,8 @@ function AdminSidebar({ onLogout }: { onLogout: () => void }) {
             </Link>
           ))}
         </nav>
-      </div>
       {/* Bottom: Logout */}
-      <div className="px-4 py-5">
+      <div className="mt-auto px-4 py-5">
         <button
           onClick={onLogout}
           className="w-full flex items-center justify-center gap-2 bg-red-600 hover:bg-red-700 text-white font-bold py-2 rounded-lg transition-colors"
@@ -81,6 +80,7 @@ function AdminSidebar({ onLogout }: { onLogout: () => void }) {
           <LogOut className="w-5 h-5" />
           Logout
         </button>
+      </div>
       </div>
     </aside>
   );
@@ -120,7 +120,7 @@ export default function AdminLayout({
   // Di sini, pastikan hanya AdminSidebar yang tampil di halaman /admin/*
   return (
     <HideUserSidebarWhenAdmin>
-      <div className="flex min-h-screen w-full bg-gray-100">
+        <div className="flex min-h-screen w-full items-start bg-gray-100">
         <AdminSidebar onLogout={handleLogout} />
         <main className="flex-1 min-h-screen bg-gray-100 p-8 overflow-auto">
           {children}
