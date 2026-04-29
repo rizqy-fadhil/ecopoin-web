@@ -45,18 +45,18 @@ export default function Home() {
           >
             Beranda
           </Link>
-          <Link
+          <a
             href="#layanan"
             className="text-[#50956a] font-medium hover:text-[#16a249] transition text-sm"
           >
             Layanan
-          </Link>
-          <Link
+          </a>
+          <a
             href="#carakerja"
             className="text-[#50956a] font-medium hover:text-[#16a249] transition text-sm"
           >
             Cara Kerja
-          </Link>
+          </a>
         </nav>
         <div className="flex gap-3">
           <Link href="/login">
@@ -107,11 +107,11 @@ export default function Home() {
                   Mulai Sekarang
                 </button>
               </Link>
-              <Link href="#layanan">
+              <a href="#layanan">
                 <button className="px-8 py-3.5 border border-white/30 text-white font-bold rounded-xl text-base bg-white/10 backdrop-blur-md hover:bg-white/20 transition">
                   Pelajari Lebih Lanjut
                 </button>
-              </Link>
+              </a>
             </div>
             <div className="flex items-center gap-3 text-white/80 text-sm font-medium">
               <Users className="w-5 h-5" />
@@ -333,24 +333,24 @@ export default function Home() {
           {/* Center: Navigation */}
           <div className="flex-1 flex flex-col items-start md:items-center mt-6 md:mt-0">
             <div className="font-bold text-[#0e1b13] mb-3 text-sm uppercase tracking-wider">Layanan</div>
-            <Link
+            <a
               href="#layanan"
               className="text-[#50956a] hover:text-[#16a249] py-1 text-sm transition"
             >
               EcoPick
-            </Link>
-            <Link
+            </a>
+            <a
               href="#layanan"
               className="text-[#50956a] hover:text-[#16a249] py-1 text-sm transition"
             >
               EcoDrop
-            </Link>
-            <Link
+            </a>
+            <a
               href="#layanan"
               className="text-[#50956a] hover:text-[#16a249] py-1 text-sm transition"
             >
               GreenCoin
-            </Link>
+            </a>
           </div>
           {/* Right: Kritik & Saran Form */}
           <div className="flex-1 mt-6 md:mt-0">

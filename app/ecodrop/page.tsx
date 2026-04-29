@@ -18,11 +18,11 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const DEFAULT_LOCATION = {
   label: "Bank Sampah Induk Surabaya",
-  address: "Jl. Ngagel Tim. No.24, Pucang Sewu, Kec. Gubeng",
+  address: "Jl. Raya Menur No.31-A, Manyar Sabrangan, Kec. Mulyorejo, Surabaya, Jawa Timur 60116",
   map_url:
-    "https://maps.google.com/?q=Jl. Ngagel Tim. No.24, Pucang Sewu, Kec. Gubeng",
-  phone: "(031) 503-4567",
-  hours: "Mon-Fri, 08:00 - 16:00",
+    "https://maps.app.goo.gl/TSFJgNdL8yproxRH6",
+  phone: "0851-0009-0858",
+  hours: "Senin - Sabtu, 08:00 - 15:00",
 };
 
 // Generate EDP reference: EDP-DDMMYY-XXXX
@@ -397,7 +397,7 @@ export default function EcoDropPage() {
           <div className="w-[220px] h-[100px] bg-gray-200 rounded-xl mb-3 overflow-hidden flex items-center justify-center">
             {/* Static map image placeholder */}
             <img
-              src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=300&q=80"
+              src="/foto-bsis.jpeg"
               alt="Static Map Surabaya"
               className="object-cover w-full h-full"
             />
@@ -469,10 +469,19 @@ export default function EcoDropPage() {
                 min="0"
                 step="0.01"
                 placeholder="0.0"
+                onKeyDown={(e) => {
+                  if (e.key === "-" || e.key === "e") e.preventDefault();
+                }}
                 className="block w-full border border-gray-200 rounded-l-lg px-3 py-2 text-gray-800 focus:border-green-500 focus:ring-2 focus:ring-green-100"
                 required
                 value={weight}
-                onChange={(e) => setWeight(e.target.value)}
+                onChange={(e) => {
+                  const val = e.target.value;
+                  // Block negative values: ignore if minus sign is typed
+                  if (val === "" || (Number(val) >= 0 && !val.includes("-"))) {
+                    setWeight(val);
+                  }
+                }}
                 disabled={isLoading}
               />
               <span className="inline-flex items-center px-3 rounded-r-lg border border-l-0 border-gray-200 bg-gray-50 text-gray-600 text-sm">

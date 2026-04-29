@@ -13,11 +13,11 @@ const navLinks = [
 
 export default function Sidebar() {
   return (
-    <aside className="flex flex-col w-64 h-screen bg-white shadow-lg px-4 py-6">
+    <aside className="flex flex-col w-64 h-screen bg-white shadow-lg px-4 py-3">
       <nav className="space-y-2">
-        <div className="mb-8 flex items-center gap-2 px-2">
-          <Image src="/frame.png" alt="EcoPoin Logo" width={24} height={24} />
-          <span className="text-2xl font-bold text-green-700">EcoPoin</span>
+        <div className="mb-6 flex items-center gap-2 px-2">
+          <Image src="/frame.png" alt="EcoPoin Logo" width={22} height={22} />
+          <span className="text-xl font-bold text-green-700">EcoPoin</span>
         </div>
         {navLinks.map((link) => (
           <Link

@@ -37,11 +37,13 @@ export default function Register() {
       setLoading(false);
       return;
     }
-    if (!/^\+62\d{8,15}$/.test(phoneNumber.replace(/\s/g, ""))) {
-      setError("Nomor telepon harus format Indonesia dan valid (cth: +6281234567890).");
+    const cleanPhone = phoneNumber.replace(/\D/g, "").replace(/^0+/, "");
+    if (cleanPhone.length < 8 || cleanPhone.length > 15) {
+      setError("Nomor telepon tidak valid. Masukkan 8-15 digit angka tanpa awalan 0 atau +62.");
       setLoading(false);
       return;
     }
+    const fullPhoneNumber = `+62${cleanPhone}`;
 
     const { data, error: signupError } = await supabase.auth.signUp({
       email,
@@ -62,13 +64,14 @@ export default function Register() {
         {
           id: userId,
           full_name: fullName,
-          phone_number: phoneNumber.replace(/\s/g, ""),
+          phone_number: fullPhoneNumber,
           email: email,
         },
       ], { onConflict: "id" });
 
     if (profileError) {
-      setError("Akun dibuat, tetapi gagal menyimpan profil. Hubungi admin.");
+      console.error("Profile Error:", profileError);
+      setError(`Akun dibuat, tetapi gagal menyimpan profil: ${profileError.message}`);
       setLoading(false);
       return;
     }
@@ -202,10 +205,9 @@ export default function Register() {
                 <input
                   id="phoneNumber"
                   type="tel"
-                  inputMode="tel"
-                  pattern="^\+62\d{8,15}$"
+                  inputMode="numeric"
                   value={phoneNumber}
-                  onChange={(e) => setPhoneNumber(e.target.value)}
+                  onChange={(e) => setPhoneNumber(e.target.value.replace(/\D/g, ""))}
                   required
                   placeholder="8123456789"
                   className="w-full rounded-xl border border-[#d1e6d8] bg-white pl-14 pr-4 py-3 text-sm text-[#0e1b13] placeholder-[#50956a]/60 focus:border-[#16a249] focus:ring-1 focus:ring-[#16a249] outline-none transition-all"
