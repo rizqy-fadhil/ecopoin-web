@@ -250,7 +250,7 @@ export default function Home() {
           <div className="flex-1">
             <div className="flex items-center gap-3 mb-2">
               <Image
-                src="/logo-ecopoin.png"
+                src="/frame.png"
                 alt="EcoPoin Logo"
                 width={36}
                 height={36}
