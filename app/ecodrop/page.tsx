@@ -124,11 +124,10 @@ export default function EcoDropPage() {
       !selectedCategoryId ||
       isNaN(weightNum) ||
       weightNum <= 0 ||
-      !photoFile ||
       !pickupDate ||
       !pickupTime
     ) {
-      alert("Mohon lengkapi seluruh field wajib, termasuk upload foto.");
+      alert("Mohon lengkapi seluruh field wajib.");
       return;
     }
     setIsLoading(true);
@@ -477,7 +476,6 @@ export default function EcoDropPage() {
                 value={weight}
                 onChange={(e) => {
                   const val = e.target.value;
-                  // Block negative values: ignore if minus sign is typed
                   if (val === "" || (Number(val) >= 0 && !val.includes("-"))) {
                     setWeight(val);
                   }

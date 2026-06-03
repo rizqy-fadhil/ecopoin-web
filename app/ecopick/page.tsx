@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef } from "react";
+import dynamic from "next/dynamic";
 import {
   Upload,
   FolderOpen,
@@ -14,10 +15,18 @@ import {
   FileStack,
   Weight,
   MapPin as Pin,
+  Navigation,
+  Loader2,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
 import type { SupabaseClient } from "@supabase/supabase-js";
+
+// Import peta secara dinamis (ssr:false) agar tidak error 'window is not defined'
+const DynamicMap = dynamic(() => import("@/components/MapComponent"), {
+  ssr: false,
+  loading: () => <p className="text-sm text-gray-500 py-4 text-center">Memuat peta...</p>,
+});
 
 // Waktu tersedia
 const TIME_SLOTS = [
@@ -56,6 +65,12 @@ export default function PickupPage() {
   const [pickupTime, setPickupTime] = useState("");
   const [isLoading, setIsLoading] = useState(false);
 
+  // --- Location state ---
+  const [locationAddress, setLocationAddress] = useState("");
+  const [locationLat, setLocationLat] = useState<number | null>(null);
+  const [locationLon, setLocationLon] = useState<number | null>(null);
+  const [isLocating, setIsLocating] = useState(false);
+
   // Success state
   const [isSuccess, setIsSuccess] = useState(false);
   const [successData, setSuccessData] = useState<any>(null);
@@ -92,6 +107,46 @@ export default function PickupPage() {
     selectedCategory && weightNum > 0
       ? Math.round(weightNum * Number(selectedCategory.point_per_unit))
       : 0;
+
+  // --- Detect Location Handler ---
+  const handleDetectLocation = () => {
+    if (!navigator.geolocation) {
+      alert("Browser Anda tidak mendukung geolocation.");
+      return;
+    }
+    setIsLocating(true);
+    navigator.geolocation.getCurrentPosition(
+      async (pos) => {
+        const { latitude: lat, longitude: lon } = pos.coords;
+        try {
+          const res = await fetch(
+            `https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`,
+            {
+              headers: { "User-Agent": "EcoPoin-App/1.0" },
+            }
+          );
+          const data = await res.json();
+          setLocationAddress(data.display_name || `${lat}, ${lon}`);
+          setLocationLat(lat);
+          setLocationLon(lon);
+        } catch {
+          setLocationAddress(`${lat}, ${lon}`);
+          setLocationLat(lat);
+          setLocationLon(lon);
+        } finally {
+          setIsLocating(false);
+        }
+      },
+      (err) => {
+        setIsLocating(false);
+        alert(
+          "Gagal mendapatkan lokasi: " +
+          (err.message || "Izin lokasi ditolak.")
+        );
+      },
+      { enableHighAccuracy: true, timeout: 10000 }
+    );
+  };
 
   // --- Handlers ---
   const handleSchedule = async (e: React.FormEvent) => {
@@ -138,7 +193,9 @@ export default function PickupPage() {
             status: "pending",
             trash_category_id: selectedCategory.id,
             weight: weightNum,
-            location_address: DEFAULT_ADDRESS,
+            location_address: locationAddress || DEFAULT_ADDRESS,
+            latitude: locationLat,
+            longitude: locationLon,
             pickup_datetime,
             notes,
             total_points: calculatedPoints,
@@ -160,14 +217,14 @@ export default function PickupPage() {
         pickupTime:
           TIME_SLOTS.find((s) => s.value === pickupTime)?.label || pickupTime,
         pickupDate,
-        location: DEFAULT_ADDRESS,
+        location: locationAddress || DEFAULT_ADDRESS,
         reference_number,
       });
       setIsSuccess(true);
     } catch (err: any) {
       alert(
         "Gagal menjadwalkan penjemputan.\n\n" +
-          (err?.message || "Terjadi kesalahan.")
+        (err?.message || "Terjadi kesalahan.")
       );
     } finally {
       setIsLoading(false);
@@ -219,7 +276,7 @@ export default function PickupPage() {
                 <span>
                   <span className="block font-semibold text-gray-700">{successData.pickupDate && successData.pickupTime
                     ? TIME_SLOTS.find(s => s.value === pickupTime)?.label
-                      ? `${successData.pickupTime}, ${new Date(successData.pickupDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}` 
+                      ? `${successData.pickupTime}, ${new Date(successData.pickupDate).toLocaleDateString('id-ID', { day: '2-digit', month: 'long', year: 'numeric' })}`
                       : `${new Date(successData.pickup_datetime).toLocaleString("id-ID", {
                         day: "2-digit",
                         month: "long",
@@ -460,11 +517,10 @@ export default function PickupPage() {
                   <button
                     key={slot.value}
                     type="button"
-                    className={`px-4 py-2 rounded-lg font-semibold shadow-sm transition focus:outline-none ${
-                      pickupTime === slot.value
-                        ? "border-2 border-green-600 bg-green-100 text-green-700"
-                        : "border border-gray-300 bg-gray-50 text-gray-700 hover:border-green-500 hover:bg-green-50 focus:ring-2 focus:ring-green-200"
-                    }`}
+                    className={`px-4 py-2 rounded-lg font-semibold shadow-sm transition focus:outline-none ${pickupTime === slot.value
+                      ? "border-2 border-green-600 bg-green-100 text-green-700"
+                      : "border border-gray-300 bg-gray-50 text-gray-700 hover:border-green-500 hover:bg-green-50 focus:ring-2 focus:ring-green-200"
+                      }`}
                     style={pickupTime === slot.value ? { borderWidth: 2 } : {}}
                     onClick={() => setPickupTime(slot.value)}
                   >
@@ -478,31 +534,54 @@ export default function PickupPage() {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 PICKUP LOCATION
               </label>
-              <div className="bg-gray-100 rounded-xl flex items-center gap-3 p-3 mb-2">
-                {/* Static Map Placeholder */}
-                <div className="w-16 h-16 bg-gray-300 rounded-lg flex items-center justify-center overflow-hidden">
-                  <img
-                    src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=128&q=80"
-                    alt="Map of Surabaya"
-                    className="object-cover w-full h-full"
-                  />
-                </div>
-                <div className="flex-1">
-                  <span className="block text-sm font-semibold text-gray-800 mb-1 flex items-center gap-1">
-                    <MapPin className="w-4 h-4 text-green-600" />
-                    {DEFAULT_ADDRESS}
-                  </span>
-                  <span className="text-xs text-gray-500">Default location</span>
-                </div>
-                <a
-                  href="#"
-                  className="text-green-700 font-semibold text-xs px-3 py-1 border border-green-600 rounded-lg hover:bg-green-50 transition whitespace-nowrap"
-                  tabIndex={-1}
-                  onClick={e => e.preventDefault()}
-                >
-                  CHANGE
-                </a>
+
+              {/* Tombol Deteksi Lokasi */}
+              <button
+                type="button"
+                id="detect-location-btn"
+                onClick={handleDetectLocation}
+                disabled={isLocating}
+                className={`w-full flex items-center justify-center gap-2 py-2.5 px-4 rounded-xl border-2 font-semibold text-sm transition mb-3 ${isLocating
+                  ? "border-green-300 bg-green-50 text-green-400 cursor-not-allowed"
+                  : "border-green-600 bg-white text-green-700 hover:bg-green-50 active:scale-95"
+                  }`}
+              >
+                {isLocating ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin" />
+                    Sedang mencari lokasi...
+                  </>
+                ) : (
+                  <>
+                    <Navigation className="w-4 h-4" />
+                    Deteksi Lokasi Saya
+                  </>
+                )}
+              </button>
+
+              {/* Input Alamat */}
+              <div className="relative mb-3">
+                <MapPin className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-green-600 pointer-events-none" />
+                <input
+                  id="location-address-input"
+                  type="text"
+                  placeholder="Klik tombol di atas atau ketik alamat manual..."
+                  value={locationAddress}
+                  onChange={(e) => setLocationAddress(e.target.value)}
+                  className="block w-full rounded-xl border border-gray-300 pl-9 pr-3 py-2.5 text-sm text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-600"
+                />
               </div>
+
+              {/* Peta Interaktif — muncul setelah lokasi terdeteksi */}
+              {locationLat !== null && locationLon !== null && (
+                <DynamicMap lat={locationLat} lon={locationLon} />
+              )}
+
+              {locationLat === null && (
+                <p className="text-xs text-gray-400 mt-1">
+                  Peta akan muncul setelah lokasi terdeteksi.
+                </p>
+              )}
             </div>
           </div>
           {/* Points Estimate & Button */}
@@ -515,11 +594,10 @@ export default function PickupPage() {
             </div>
             <button
               type="submit"
-              className={`w-full py-4 rounded-xl text-lg font-semibold text-white shadow transition ${
-                isLoading
-                  ? "bg-green-300 cursor-not-allowed"
-                  : "bg-green-600 hover:bg-green-700"
-              }`}
+              className={`w-full py-4 rounded-xl text-lg font-semibold text-white shadow transition ${isLoading
+                ? "bg-green-300 cursor-not-allowed"
+                : "bg-green-600 hover:bg-green-700"
+                }`}
               disabled={isLoading}
             >
               {isLoading ? "Memproses..." : "Jadwalkan Penjemputan"}

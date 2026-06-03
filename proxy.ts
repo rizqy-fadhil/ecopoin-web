@@ -1,8 +1,8 @@
 import { createServerClient } from '@supabase/ssr'
 import { NextResponse, type NextRequest } from 'next/server'
 
-// Bagian ini WAJIB persis seperti ini: ada 'export', huruf kecil 'middleware'
-export async function middleware(request: NextRequest) {
+// Bagian ini WAJIB persis seperti ini: ada 'export', huruf kecil 'proxy'
+export async function proxy(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
   })

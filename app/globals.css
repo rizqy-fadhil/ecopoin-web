@@ -1,15 +1,10 @@
-@import "tailwindcss";
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
 
 :root {
   --background: #ffffff;
   --foreground: #171717;
-}
-
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -32,4 +27,9 @@ body {
 /* Offset scroll targets for sticky navbar */
 section[id] {
   scroll-margin-top: 80px;
+}
+
+/* Leaflet map — pastikan tidak menimpa z-index Tailwind */
+.leaflet-container {
+  z-index: 0;
 }

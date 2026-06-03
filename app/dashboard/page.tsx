@@ -406,17 +406,19 @@ export default function Dashboard() {
           {categoriesBreakdown.length > 0 ? (
             <div className="flex flex-col md:flex-row items-center gap-8 justify-center">
               <div className="flex-1 flex justify-center">
-                <div className="w-[320px] h-[300px]">
+                <div className="w-[300px] h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
-                    <PieChart margin={{ top: 30, right: 60, bottom: 30, left: 60 }}>
+                    <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
                       <Pie
                         data={categoriesBreakdown}
                         dataKey="total"
                         nameKey="name"
                         cx="50%"
                         cy="50%"
-                        outerRadius={85}
-                        innerRadius={55}
+                        outerRadius={70}
+                        innerRadius={45}
+                        labelLine={false}
+                        label={({ name, percent }) => `${name} (${Math.round((percent ?? 0) * 100)}%)`}
                         isAnimationActive={false}
                       >
                         {categoriesBreakdown.map((entry, i) => (
