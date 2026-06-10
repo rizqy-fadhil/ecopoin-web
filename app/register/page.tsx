@@ -2,25 +2,27 @@
 import React, { useState } from "react";
 import Image from "next/image";
 import Link from "next/link";
-import { createClient } from "@supabase/supabase-js";
-
-// Anda bisa mengganti dengan env var di project real
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+import { useRouter } from "next/navigation";
+import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import type { SupabaseClient } from "@supabase/supabase-js";
+import { Eye, EyeOff } from "lucide-react";
 
 const bgUrl =
   "https://lh3.googleusercontent.com/aida-public/AB6AXuADF9rNS5fnwii-GpWiepAv7MEtRhAODOBXQtRvNZ3VTLCBCpDGx21mcNDJUOu2-x4QFtpR3sblsljpFwz2PgJYVjrI9rOWkhfbWKMF4rzFKaFdDOvMjukp7-XLVMWhEagxMppRKaH8ffoz6jJPJQIpFtjKRlTZJ-h5mHxt385cX79PgymEAVJtoqIRKbnhzN5liEIG4P7ZR6wh5pSi3tp7a0NdLCaFw-PbTpedUQGSdrGmEHP0l4Ljibp0kODQqfo0yddRPxl_lZUi";
 
 export default function Register() {
+  const router = useRouter();
+  const supabase: SupabaseClient = createBrowserClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+  );
   const [fullName, setFullName] = useState("");
   const [email, setEmail] = useState("");
   const [phoneNumber, setPhoneNumber] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
-  const [success, setSuccess] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,43 +47,38 @@ export default function Register() {
     }
     const fullPhoneNumber = `+62${cleanPhone}`;
 
-    const { data, error: signupError } = await supabase.auth.signUp({
+    const registerRes = await fetch("/api/auth/register", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({
+        email,
+        password,
+        fullName,
+        phoneNumber: fullPhoneNumber,
+      }),
+    });
+    const registerResult = await registerRes.json();
+
+    if (!registerRes.ok) {
+      setError(registerResult.error || "Gagal mendaftar. Coba lagi.");
+      setLoading(false);
+      return;
+    }
+
+    const { error: signInError } = await supabase.auth.signInWithPassword({
       email,
       password,
     });
 
-    if (signupError || !data.user) {
-      setError(signupError?.message || "Gagal mendaftar. Coba lagi.");
+    if (signInError) {
+      setError(
+        "Akun berhasil dibuat, tetapi gagal masuk otomatis. Silakan login manual.",
+      );
       setLoading(false);
       return;
     }
 
-    // Insert/update ke tabel profiles
-    const userId = data.user.id;
-    const { error: profileError } = await supabase
-      .from("profiles")
-      .upsert([
-        {
-          id: userId,
-          full_name: fullName,
-          phone_number: fullPhoneNumber,
-          email: email,
-        },
-      ], { onConflict: "id" });
-
-    if (profileError) {
-      console.error("Profile Error:", profileError);
-      setError(`Akun dibuat, tetapi gagal menyimpan profil: ${profileError.message}`);
-      setLoading(false);
-      return;
-    }
-
-    setSuccess(true);
-    setLoading(false);
-    setFullName("");
-    setEmail("");
-    setPhoneNumber("");
-    setPassword("");
+    router.push("/dashboard");
   };
 
   return (
@@ -223,16 +220,31 @@ export default function Register() {
               >
                 Kata Sandi
               </label>
-              <input
-                id="password"
-                type="password"
-                minLength={8}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                required
-                placeholder="Min. 8 karakter"
-                className="w-full rounded-xl border border-[#d1e6d8] bg-white px-4 py-3 text-sm text-[#0e1b13] placeholder-[#50956a]/60 focus:border-[#16a249] focus:ring-1 focus:ring-[#16a249] outline-none transition-all"
-              />
+              <div className="relative">
+                <input
+                  id="password"
+                  type={showPassword ? "text" : "password"}
+                  minLength={8}
+                  value={password}
+                  onChange={(e) => setPassword(e.target.value)}
+                  required
+                  placeholder="Min. 8 karakter"
+                  className="w-full rounded-xl border border-[#d1e6d8] bg-white pl-4 pr-11 py-3 text-sm text-[#0e1b13] placeholder-[#50956a]/60 focus:border-[#16a249] focus:ring-1 focus:ring-[#16a249] outline-none transition-all"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword((prev) => !prev)}
+                  className="absolute right-3 top-1/2 -translate-y-1/2 p-1 text-[#50956a] hover:text-[#16a249] transition-colors"
+                  aria-label={showPassword ? "Sembunyikan kata sandi" : "Tampilkan kata sandi"}
+                  tabIndex={0}
+                >
+                  {showPassword ? (
+                    <EyeOff className="w-5 h-5" />
+                  ) : (
+                    <Eye className="w-5 h-5" />
+                  )}
+                </button>
+              </div>
             </div>
 
             {/* Submit Button */}
@@ -250,11 +262,6 @@ export default function Register() {
             {error && (
               <div className="text-red-700 text-center text-sm bg-red-50 rounded-xl py-2.5 px-4 border border-red-100">
                 {error}
-              </div>
-            )}
-            {success && (
-              <div className="text-emerald-700 text-center text-sm bg-emerald-50 rounded-xl py-2.5 px-4 border border-emerald-100">
-                Berhasil mendaftar! Silakan cek email untuk verifikasi.
               </div>
             )}
           </form>
