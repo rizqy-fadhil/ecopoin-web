@@ -1,7 +1,7 @@
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const BUCKET = "waste-photos";
-const MAX_BYTES = 3 * 1024 * 1024;
+const MAX_BYTES = 10 * 1024 * 1024;
 
 export async function uploadEcopickPhoto(
   db: SupabaseClient,
@@ -10,7 +10,7 @@ export async function uploadEcopickPhoto(
   file: File,
 ): Promise<string> {
   if (file.size > MAX_BYTES) {
-    throw new Error("Ukuran foto maksimal 3MB.");
+    throw new Error("Ukuran foto maksimal 10MB.");
   }
 
   if (!file.type.startsWith("image/")) {

@@ -158,8 +158,8 @@ export default function PickupPage() {
       alert("File harus berupa gambar.");
       return;
     }
-    if (file.size > 3 * 1024 * 1024) {
-      alert("Ukuran foto maksimal 3MB.");
+    if (file.size > 10 * 1024 * 1024) {
+      alert("Ukuran foto maksimal 10MB.");
       return;
     }
     setPhotoFile(file);
@@ -460,7 +460,7 @@ export default function PickupPage() {
                     Click to upload or drag and drop
                   </span>
                   <span className="text-xs text-gray-500">
-                    SVG, PNG, JPG or GIF (max. 3MB)
+                    SVG, PNG, JPG or GIF (max. 10MB)
                   </span>
                 </>
               )}
