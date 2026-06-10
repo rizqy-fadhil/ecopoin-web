@@ -560,17 +560,25 @@ export default function EcoDropPage() {
             {/* Dropzone */}
             <label
               htmlFor="dropoff-photo"
-              className="flex flex-col items-center justify-center flex-1 cursor-pointer border-2 border-dashed border-gray-200 rounded-xl py-8 px-4 transition hover:bg-green-50 text-center mb-6"
+              className="flex flex-col items-center justify-center flex-1 min-h-[320px] cursor-pointer border-2 border-dashed border-gray-200 rounded-xl py-6 px-4 transition hover:bg-green-50 text-center mb-6"
             >
               {photoFile ? (
-                <img
-                  src={URL.createObjectURL(photoFile)}
-                  alt="Preview"
-                  className="w-24 h-24 object-cover rounded"
-                />
+                <>
+                  <img
+                    src={URL.createObjectURL(photoFile)}
+                    alt="Preview foto drop-off"
+                    className="w-full max-h-64 min-h-[220px] object-contain rounded-xl border border-gray-100 bg-gray-50"
+                  />
+                  <span className="font-medium text-green-700 mt-4 mb-1">
+                    {photoFile.name}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    Klik untuk ganti foto
+                  </span>
+                </>
               ) : (
                 <>
-                  <Upload className="w-12 h-12 text-green-400 mb-2" />
+                  <Upload className="w-14 h-14 text-green-400 mb-3" />
                   <span className="font-medium text-green-700 mb-1">
                     Klik untuk unggah foto
                   </span>

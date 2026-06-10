@@ -75,8 +75,9 @@ export default function PickupPage() {
   const [isSuccess, setIsSuccess] = useState(false);
   const [successData, setSuccessData] = useState<any>(null);
 
-  // Photo/file input: Not uploaded for now
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
     // Fetch trash_categories from Supabase on mount
@@ -148,6 +149,45 @@ export default function PickupPage() {
     );
   };
 
+  const handlePhotoFile = (file: File | null) => {
+    if (!file) {
+      setPhotoFile(null);
+      return;
+    }
+    if (!file.type.startsWith("image/")) {
+      alert("File harus berupa gambar.");
+      return;
+    }
+    if (file.size > 3 * 1024 * 1024) {
+      alert("Ukuran foto maksimal 3MB.");
+      return;
+    }
+    setPhotoFile(file);
+  };
+
+  const handlePhotoChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handlePhotoFile(e.target.files?.[0] ?? null);
+  };
+
+  const handleDragOver = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent<HTMLLabelElement>) => {
+    e.preventDefault();
+    e.stopPropagation();
+    setIsDragOver(false);
+    handlePhotoFile(e.dataTransfer.files?.[0] ?? null);
+  };
+
   // --- Handlers ---
   const handleSchedule = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -183,29 +223,32 @@ export default function PickupPage() {
       // Generate reference number
       const reference_number = generateReferenceNumber();
 
-      // Insert ke tabel transactions (with calculated points from state)
-      const { data: trx, error: trxError } = await supabase
-        .from("transactions")
-        .insert([
-          {
-            user_id: user.id,
-            type: "ecopick",
-            status: "pending",
-            trash_category_id: selectedCategory.id,
-            weight: weightNum,
-            location_address: locationAddress || DEFAULT_ADDRESS,
-            latitude: locationLat,
-            longitude: locationLon,
-            pickup_datetime,
-            notes,
-            total_points: calculatedPoints,
-            reference_number,
-          },
-        ])
-        .select()
-        .single();
+      const formData = new FormData();
+      formData.append("trash_category_id", String(selectedCategory.id));
+      formData.append("weight", String(weightNum));
+      formData.append("location_address", locationAddress || DEFAULT_ADDRESS);
+      if (locationLat !== null) formData.append("latitude", String(locationLat));
+      if (locationLon !== null) formData.append("longitude", String(locationLon));
+      formData.append("pickup_datetime", pickup_datetime);
+      formData.append("notes", notes);
+      formData.append("total_points", String(calculatedPoints));
+      formData.append("reference_number", reference_number);
 
-      if (trxError) throw trxError;
+      if (photoFile) {
+        formData.append("photo", photoFile);
+      }
+
+      const response = await fetch("/api/ecopick", {
+        method: "POST",
+        body: formData,
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        throw new Error(result.error || "Gagal menjadwalkan penjemputan.");
+      }
+
+      const trx = result.data;
 
       // For success summary UI
       setSuccessData({
@@ -383,18 +426,44 @@ export default function PickupPage() {
             <h2 className="font-semibold text-lg text-black mb-4 flex items-center gap-2">
               <Upload className="w-5 h-5 text-green-600" />
               Upload Waste Photos
+              <span className="text-xs font-normal text-gray-400">(opsional)</span>
             </h2>
             <label
               htmlFor="waste-upload"
-              className="flex flex-col items-center justify-center cursor-pointer border-2 border-dashed border-green-300 rounded-xl py-8 px-4 transition hover:bg-green-50"
+              onDragOver={handleDragOver}
+              onDragLeave={handleDragLeave}
+              onDrop={handleDrop}
+              className={`flex flex-col items-center justify-center cursor-pointer border-2 border-dashed rounded-xl py-8 px-4 transition ${
+                isDragOver
+                  ? "border-green-500 bg-green-50"
+                  : "border-green-300 hover:bg-green-50"
+              }`}
             >
-              <Upload className="w-12 h-12 text-green-400 mb-2" />
-              <span className="font-medium text-green-700 mb-1">
-                Click to upload or drag and drop
-              </span>
-              <span className="text-xs text-gray-500">
-                SVG, PNG, JPG or GIF (max. 3MB)
-              </span>
+              {photoFile ? (
+                <>
+                  <img
+                    src={URL.createObjectURL(photoFile)}
+                    alt="Preview foto sampah"
+                    className="w-28 h-28 object-cover rounded-xl mb-2"
+                  />
+                  <span className="font-medium text-green-700 mb-1">
+                    {photoFile.name}
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    Klik untuk ganti foto
+                  </span>
+                </>
+              ) : (
+                <>
+                  <Upload className="w-12 h-12 text-green-400 mb-2" />
+                  <span className="font-medium text-green-700 mb-1">
+                    Click to upload or drag and drop
+                  </span>
+                  <span className="text-xs text-gray-500">
+                    SVG, PNG, JPG or GIF (max. 3MB)
+                  </span>
+                </>
+              )}
               <input
                 ref={fileInputRef}
                 id="waste-upload"
@@ -402,8 +471,8 @@ export default function PickupPage() {
                 type="file"
                 accept="image/*"
                 className="hidden"
-                multiple
-                disabled
+                disabled={isLoading}
+                onChange={handlePhotoChange}
               />
             </label>
           </div>
@@ -416,7 +485,7 @@ export default function PickupPage() {
             {/* Category Select (from Supabase) */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Select category <span className="text-red-500">*</span>
+                Kategori Sampah <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <select
@@ -429,7 +498,7 @@ export default function PickupPage() {
                   <option value="" disabled>
                     {categories.length === 0
                       ? "Loading..."
-                      : "Select category (e.g. Plastic, Paper)"}
+                      : "Pilih kategori sampah..."}
                   </option>
                   {categories.map((c) => (
                     <option key={c.id} value={c.id}>
@@ -443,7 +512,7 @@ export default function PickupPage() {
             {/* Estimated Weight */}
             <div className="mb-4">
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Estimated Weight (kg) <span className="text-red-500">*</span>
+                Berat (kg) <span className="text-red-500">*</span>
               </label>
               <div className="relative">
                 <input
@@ -469,14 +538,14 @@ export default function PickupPage() {
                 </span>
               </div>
             </div>
-            {/* Notes for Driver */}
+            {/* Catatan */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Notes for Driver
+                Catatan
               </label>
               <textarea
                 rows={3}
-                placeholder="E.g., The waste is in front of the blue gate..."
+                placeholder="Tambahkan keterangan khusus sampah jika diperlukan..."
                 className="block w-full rounded-lg border border-gray-300 p-3 text-gray-800 bg-white focus:outline-none focus:ring-2 focus:ring-green-400 focus:border-green-600 resize-none"
                 value={notes}
                 onChange={e => setNotes(e.target.value)}

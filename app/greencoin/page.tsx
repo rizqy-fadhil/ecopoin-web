@@ -3,8 +3,6 @@
 import React, { useEffect, useState, useMemo } from "react";
 import {
   ArrowLeftRight,
-  Download,
-  Filter,
   Recycle,
   Truck,
   Wallet2,
@@ -634,26 +632,10 @@ export default function GreenCoinPage() {
       )}
 
       {/* Transaction History Header */}
-      <div className="flex justify-between items-center mb-2 mt-2">
+      <div className="mb-2 mt-2">
         <h2 className="text-2xl font-bold text-gray-900 tracking-tight">
           Transaction History
         </h2>
-        <div className="flex gap-4">
-          <button
-            type="button"
-            className="p-2 rounded-full hover:bg-green-100 text-green-700 transition"
-            title="Filter"
-          >
-            <Filter className="w-5 h-5" />
-          </button>
-          <button
-            type="button"
-            className="p-2 rounded-full hover:bg-green-100 text-green-700 transition"
-            title="Download"
-          >
-            <Download className="w-5 h-5" />
-          </button>
-        </div>
       </div>
       {/* Tabs Navigation */}
       <div className="relative flex flex-row items-end border-b border-gray-200 mb-2">

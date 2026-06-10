@@ -134,13 +134,25 @@ export default function MasterDataKonversiPoinPage() {
     }
   }
 
-  // Delete
+  // Delete via API route (verifikasi admin + bypass RLS jika service role tersedia)
   async function handleDelete(id: number) {
-    if (window.confirm("Yakin ingin menghapus kategori ini?")) {
-      const { error } = await supabase.from("trash_categories").delete().eq("id", id);
-      if (!error) {
-        fetchCategories();
+    if (!window.confirm("Yakin ingin menghapus kategori ini?")) return;
+
+    try {
+      const response = await fetch(`/api/admin/trash-categories/${id}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!response.ok) {
+        alert(result.error || "Gagal menghapus kategori.");
+        return;
       }
+
+      await fetchCategories();
+    } catch (err: unknown) {
+      const message = err instanceof Error ? err.message : String(err);
+      alert("Terjadi kesalahan saat menghapus: " + message);
     }
   }
 
