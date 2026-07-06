@@ -105,6 +105,39 @@ export default function AdminLayout({
 }) {
   const router = useRouter();
   const pathname = usePathname();
+  const [isAdmin, setIsAdmin] = React.useState<boolean | null>(null); // null = loading
+
+  // Client-side role guard (second layer after middleware)
+  React.useEffect(() => {
+    let cancelled = false;
+    async function checkRole() {
+      const supabase = createBrowserClient(
+        process.env.NEXT_PUBLIC_SUPABASE_URL!,
+        process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+      );
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) {
+        if (!cancelled) router.push("/login");
+        return;
+      }
+      const { data: profile } = await supabase
+        .from("profiles")
+        .select("role")
+        .eq("id", user.id)
+        .single();
+
+      if (!cancelled) {
+        if (profile?.role === "admin") {
+          setIsAdmin(true);
+        } else {
+          // Not admin — redirect to user dashboard
+          router.push("/dashboard");
+        }
+      }
+    }
+    checkRole();
+    return () => { cancelled = true; };
+  }, [router]);
 
   const handleLogout = async () => {
     const supabase = createBrowserClient(
@@ -114,6 +147,18 @@ export default function AdminLayout({
     await supabase.auth.signOut();
     router.push("/login");
   };
+
+  // Show loading while checking role
+  if (isAdmin === null) {
+    return (
+      <div className="flex min-h-screen w-full items-center justify-center bg-gray-100">
+        <div className="text-center">
+          <div className="inline-block h-8 w-8 animate-spin rounded-full border-4 border-green-500 border-r-transparent" />
+          <p className="mt-3 text-sm text-gray-500">Memverifikasi akses...</p>
+        </div>
+      </div>
+    );
+  }
 
   // Layout hijacks global UserSidebar by wrapper in usage on global layout
   // Or, if UserSidebar truly global, tambahkan pengecekan usePathname di UserSidebar
