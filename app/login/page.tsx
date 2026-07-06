@@ -197,7 +197,7 @@ export default function LoginPage() {
             </div>
           </form>
 
-          Error
+          {/* Error */}
           {error && (
             <div className="mt-4 text-red-700 text-center text-sm bg-red-50 rounded-xl py-2.5 px-4 border border-red-100">
               {error}
