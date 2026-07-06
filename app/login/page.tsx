@@ -203,6 +203,16 @@ export default function LoginPage() {
               {error}
             </div>
           )}
+          {/* Footer */}
+          <p className="mt-10 text-center text-sm text-[#50956a]">
+            Belum punya akun?
+            <Link
+              href="/register"
+              className="font-bold text-[#16a249] hover:text-[#15803d] ml-1 underline-offset-4 hover:underline transition-all"
+            >
+              Daftar
+            </Link>
+          </p>
         </div>
       </section>
     </main>

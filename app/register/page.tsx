@@ -263,6 +263,17 @@ export default function Register() {
                 {error}
               </div>
             )}
+          
+          {/* Footer */}
+          <p className="mt-10 text-center text-sm text-[#50956a]">
+            Sudah punya akun?
+            <Link
+              href="/login"
+              className="font-bold text-[#16a249] hover:text-[#15803d] ml-1 underline-offset-4 hover:underline transition-all"
+            >
+              Masuk
+            </Link>
+          </p>
           </form>
         </div>
       </section>
