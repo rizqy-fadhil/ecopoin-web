@@ -264,54 +264,6 @@ export default function Register() {
               </div>
             )}
           </form>
-
-          {/* Divider */}
-          <div className="relative my-8">
-            <div className="absolute inset-0 flex items-center">
-              <div className="w-full border-t border-[#d1e6d8]" />
-            </div>
-            <div className="relative flex justify-center text-xs uppercase">
-              <span className="bg-[#f8fbf9] px-4 text-[#50956a] font-medium tracking-wider">
-                Atau daftar dengan
-              </span>
-            </div>
-          </div>
-
-          {/* Social Buttons */}
-          <div className="grid grid-cols-2 gap-4">
-            <button
-              type="button"
-              className="flex h-12 items-center justify-center gap-3 rounded-xl border border-[#d1e6d8] bg-white px-4 text-sm font-bold text-[#0e1b13] hover:bg-gray-50 transition-colors shadow-sm"
-            >
-              <svg aria-hidden="true" viewBox="0 0 48 48" className="w-5 h-5">
-                <path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.603 32.659 29.129 36 24 36c-6.627 0-12-5.373-12-12s5.373-12 12-12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917Z" />
-                <path fill="#FF3D00" d="M6.306 14.691 12.88 19.51C14.657 15.108 18.967 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691Z" />
-                <path fill="#4CAF50" d="M24 44c5.018 0 9.713-1.922 13.207-5.051l-6.097-5.162C29.066 35.091 26.645 36 24 36c-5.108 0-9.568-3.317-11.261-7.946l-6.522 5.025C9.52 39.556 16.227 44 24 44Z" />
-                <path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a11.96 11.96 0 0 1-4.193 5.787l.003-.002 6.097 5.162C36.777 39.318 44 34 44 24c0-1.341-.138-2.65-.389-3.917Z" />
-              </svg>
-              Google
-            </button>
-            <button
-              type="button"
-              className="flex h-12 items-center justify-center gap-3 rounded-xl border border-[#d1e6d8] bg-white px-4 text-sm font-bold text-[#0e1b13] hover:bg-gray-50 transition-colors shadow-sm"
-            >
-              <svg aria-hidden="true" viewBox="0 0 24 24" className="w-5 h-5 text-blue-600" fill="currentColor">
-                <path d="M22 12a10 10 0 1 0-11.56 9.88v-6.99H7.9V12h2.54V9.8c0-2.5 1.49-3.89 3.77-3.89 1.09 0 2.23.2 2.23.2v2.46h-1.26c-1.24 0-1.62.77-1.62 1.56V12h2.76l-.44 2.89h-2.32v6.99A10 10 0 0 0 22 12Z" />
-              </svg>
-              Facebook
-            </button>
-          </div>
-
-          {/* Footer */}
-          <p className="mt-10 text-center text-sm text-[#50956a]">
-            Sudah punya akun?
-            <Link
-              href="/login"
-              className="font-bold text-[#16a249] hover:text-[#15803d] ml-1 underline-offset-4 hover:underline transition-all"
-            >
-              Masuk
-            </Link>
-          </p>
         </div>
       </section>
     </main>
