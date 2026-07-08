@@ -247,7 +247,7 @@ export default function EcoDropPage() {
       .replace(".", ":");
 
     return (
-      <main className="p-8 bg-gray-50 min-h-screen flex flex-col items-center">
+      <main className="p-3 sm:p-4 md:p-8 bg-gray-50 min-h-screen flex flex-col items-center">
         {/* Header Success */}
         <div className="mb-6 flex flex-col items-center relative">
           <div className="bg-green-100 relative rounded-full p-6 flex items-center justify-center">
@@ -352,7 +352,7 @@ export default function EcoDropPage() {
 
   // Main Form (Tetap seperti awal, hanya ada tambahan waktu & tanggal pick up)
   return (
-    <main className="p-8 bg-gray-50 min-h-screen">
+    <main className="p-3 sm:p-4 md:p-8 bg-gray-50 min-h-screen">
       {/* Header Section */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-black mb-2">
@@ -364,7 +364,7 @@ export default function EcoDropPage() {
       </div>
 
       {/* Location Card */}
-      <div className="bg-white rounded-2xl shadow-sm p-6 mb-8 flex flex-col md:flex-row justify-between gap-6">
+      <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 mb-6 md:mb-8 flex flex-col md:flex-row justify-between gap-4 md:gap-6">
         {/* Info */}
         <div className="flex-1 min-w-0">
           <h2 className="text-xl font-bold text-green-700 mb-2">
@@ -413,11 +413,11 @@ export default function EcoDropPage() {
       </div>
       {/* Main Content Grid */}
       <form
-        className="grid grid-cols-1 lg:grid-cols-2 gap-8"
+        className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-8"
         onSubmit={handleSubmit}
       >
         {/* Left Column: Drop-off Details */}
-        <div className="bg-white rounded-2xl shadow-sm p-6 mb-6 flex flex-col gap-6">
+        <div className="bg-white rounded-2xl shadow-sm p-4 sm:p-6 mb-4 md:mb-6 flex flex-col gap-4 md:gap-6">
           {/* Title */}
           <div className="flex items-center gap-2 mb-2">
             <FolderOpen className="w-5 h-5 text-green-600" />
@@ -560,7 +560,7 @@ export default function EcoDropPage() {
             {/* Dropzone */}
             <label
               htmlFor="dropoff-photo"
-              className="flex flex-col items-center justify-center flex-1 min-h-[320px] cursor-pointer border-2 border-dashed border-gray-200 rounded-xl py-6 px-4 transition hover:bg-green-50 text-center mb-6"
+              className="flex flex-col items-center justify-center flex-1 min-h-[200px] sm:min-h-[320px] cursor-pointer border-2 border-dashed border-gray-200 rounded-xl py-6 px-4 transition hover:bg-green-50 text-center mb-6"
             >
               {photoFile ? (
                 <>

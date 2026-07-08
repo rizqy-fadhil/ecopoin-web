@@ -238,7 +238,7 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <main className="p-6 bg-gray-50/50 min-h-screen flex flex-col gap-6">
+      <main className="p-3 sm:p-4 md:p-6 bg-gray-50/50 min-h-screen flex flex-col gap-4 md:gap-6">
         <div className="flex items-center justify-center h-64">
           <Loader2 className="animate-spin text-emerald-600" size={32} />
         </div>
@@ -313,7 +313,7 @@ export default function Dashboard() {
   }
 
   return (
-    <main className="p-6 bg-gray-50/50 min-h-screen flex flex-col gap-6">
+    <main className="p-3 sm:p-4 md:p-6 bg-gray-50/50 min-h-screen flex flex-col gap-4 md:gap-6">
       <section>
         <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-5">
           <SummaryCard
@@ -348,12 +348,12 @@ export default function Dashboard() {
       </section>
 
       <section>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
-          <div className="col-span-1 md:col-span-2 bg-white rounded-xl shadow-sm p-5">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-5">
+          <div className="col-span-1 lg:col-span-2 bg-white rounded-xl shadow-sm p-3 sm:p-5">
             <div className="flex items-center justify-between mb-2">
               <span className="font-semibold text-gray-800 text-lg">Recycling Activity</span>
             </div>
-            <div style={{ width: '100%', height: 300 }}>
+            <div className="w-full h-[200px] sm:h-[250px] md:h-[300px]">
               <ResponsiveContainer width="100%" height="100%">
                 <LineChart data={activityData.length > 0 ? activityData : [{ label: "", recycled: 0 }]}>
                   <CartesianGrid strokeDasharray="3 3" vertical={false} />
@@ -378,7 +378,7 @@ export default function Dashboard() {
                 </li>
               ) : (
                 recentTransactions.map((tx) => (
-                  <li key={tx.id} className="flex items-center border-b last:border-b-0 py-3 px-0 gap-4">
+                  <li key={tx.id} className="flex items-center border-b last:border-b-0 py-2 sm:py-3 px-0 gap-2 sm:gap-4">
                     {transactionIcon(tx)}
                     <div className="flex-1 min-w-0">
                       <div className="font-semibold text-gray-800 leading-none truncate">{typeLabel(tx)}</div>
@@ -404,9 +404,9 @@ export default function Dashboard() {
             <span className="font-semibold text-gray-800 text-lg">Waste Categories</span>
           </div>
           {categoriesBreakdown.length > 0 ? (
-            <div className="flex flex-col md:flex-row items-center gap-8 justify-center">
+            <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 justify-center">
               <div className="flex-1 flex justify-center">
-                <div className="w-[300px] h-[300px]">
+                <div className="w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] md:w-[300px] md:h-[300px]">
                   <ResponsiveContainer width="100%" height="100%">
                     <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
                       <Pie

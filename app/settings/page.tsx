@@ -193,7 +193,7 @@ export default function AccountSettingsPage() {
   }
 
   return (
-    <main className="flex-1 p-8 bg-gray-50 min-h-screen">
+    <main className="flex-1 p-3 sm:p-4 md:p-8 bg-gray-50 min-h-screen">
       {/* Toast */}
       {toast && (
         <div
@@ -205,7 +205,7 @@ export default function AccountSettingsPage() {
       )}
 
       {/* Page Header */}
-      <div className="mb-10 flex items-center gap-4">
+      <div className="mb-6 md:mb-10 flex items-center gap-3 md:gap-4">
         <span className="inline-flex items-center justify-center w-12 h-12 rounded-full bg-green-100">
           <Cog className="w-7 h-7 text-green-600" />
         </span>
@@ -235,14 +235,14 @@ export default function AccountSettingsPage() {
           <button
             type="submit"
             disabled={saving || loadingProfile}
-            className={`text-green-700 font-semibold hover:underline focus:outline-none px-4 transition
+            className={`text-green-700 font-semibold hover:underline focus:outline-none px-4 transition text-sm md:text-base
               ${saving || loadingProfile ? "opacity-60 pointer-events-none" : ""}`}
           >
             {saving ? "Saving..." : "Save Changes"}
           </button>
         </div>
         {/* Form Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-6">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-4 md:mt-6">
           {/* Full Name */}
           <div>
             <label className="block text-xs text-gray-500 font-semibold mb-2">
@@ -410,7 +410,7 @@ export default function AccountSettingsPage() {
       </form>
 
       {/* Danger Zone / Logout Card */}
-      <div className="bg-red-50/50 border border-red-100 rounded-2xl p-6 flex justify-end mt-9">
+      <div className="bg-red-50/50 border border-red-100 rounded-2xl p-4 sm:p-6 flex justify-end mt-6 md:mt-9">
         <button
           type="button"
           onClick={handleLogout}

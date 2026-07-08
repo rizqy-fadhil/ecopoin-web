@@ -285,7 +285,7 @@ export default function PickupPage() {
   if (isSuccess && successData) {
     // Tampilkan halaman sukses dengan styling sesuai instruksi
     return (
-      <main className="bg-gray-50 min-h-screen p-4 flex items-center justify-center">
+      <main className="bg-gray-50 min-h-screen p-3 sm:p-4 flex items-center justify-center">
         <div className="w-full max-w-lg mx-auto">
           {/* Header */}
           <div className="flex flex-col items-center mb-8 mt-6">
@@ -402,7 +402,7 @@ export default function PickupPage() {
 
   // --- DEFAULT FORM RENDER ---
   return (
-    <main className="p-8 bg-gray-50 min-h-screen">
+    <main className="p-3 sm:p-4 md:p-8 bg-gray-50 min-h-screen">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl md:text-4xl font-bold text-black mb-2">
@@ -415,7 +415,7 @@ export default function PickupPage() {
 
       {/* Main Content */}
       <form
-        className="grid grid-cols-1 lg:[grid-template-columns:2fr_1fr] gap-8"
+        className="grid grid-cols-1 lg:[grid-template-columns:2fr_1fr] gap-4 md:gap-8"
         onSubmit={handleSchedule}
         autoComplete="off"
       >

@@ -60,14 +60,14 @@ export default function Home() {
         <div className="flex gap-2">
           <Link href="/login">
             <button
-              className="px-5 py-2 border-2 border-green-600 text-green-600 rounded-full font-semibold bg-white hover:bg-green-50 hover:border-green-700 hover:text-green-700 transition"
+              className="px-3 py-1.5 text-sm md:px-5 md:py-2 md:text-base border-2 border-green-600 text-green-600 rounded-full font-semibold bg-white hover:bg-green-50 hover:border-green-700 hover:text-green-700 transition"
             >
               Masuk
             </button>
           </Link>
           <Link href="/register">
             <button
-              className="px-5 py-2 bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition"
+              className="px-3 py-1.5 text-sm md:px-5 md:py-2 md:text-base bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition"
             >
               Daftar
             </button>
@@ -164,7 +164,7 @@ export default function Home() {
         <h2 className="text-3xl md:text-4xl font-bold text-green-900 text-center mb-12">
           Cara Kerja EcoPoin
         </h2>
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
+        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-6 max-w-5xl mx-auto">
           {/* Langkah 1 */}
           <div className="flex flex-col items-center text-center bg-green-50 rounded-xl shadow p-6">
             <User className="w-8 h-8 mb-3 text-green-700" />
@@ -205,29 +205,29 @@ export default function Home() {
         <div className="bg-green-600 rounded-2xl py-12 px-4 md:px-12 flex flex-col md:flex-row items-center justify-between text-white gap-6 md:gap-0 max-w-6xl mx-auto shadow">
           <div className="flex-1 text-center">
             <div className="text-3xl md:text-4xl font-extrabold">150+</div>
-            <div className="text-white/80 mt-1 text-base md:text-lg">Ton Sampah Terkumpul</div>
+            <div className="text-white/80 mt-1 text-sm md:text-lg">Ton Sampah Terkumpul</div>
           </div>
           <div className="hidden md:block w-px bg-white/30 h-14 mx-3" />
           <div className="flex-1 text-center">
             <div className="text-3xl md:text-4xl font-extrabold">50M+</div>
-            <div className="text-white/80 mt-1 text-base md:text-lg">GreenCoin Didistribusikan</div>
+            <div className="text-white/80 mt-1 text-sm md:text-lg">GreenCoin Didistribusikan</div>
           </div>
           <div className="hidden md:block w-px bg-white/30 h-14 mx-3" />
           <div className="flex-1 text-center">
             <div className="text-3xl md:text-4xl font-extrabold">12k+</div>
-            <div className="text-white/80 mt-1 text-base md:text-lg">Total Transaksi</div>
+            <div className="text-white/80 mt-1 text-sm md:text-lg">Total Transaksi</div>
           </div>
           <div className="hidden md:block w-px bg-white/30 h-14 mx-3" />
           <div className="flex-1 text-center">
             <div className="text-3xl md:text-4xl font-extrabold">85T</div>
-            <div className="text-white/80 mt-1 text-base md:text-lg">CO₂ Dikurangi</div>
+            <div className="text-white/80 mt-1 text-sm md:text-lg">CO₂ Dikurangi</div>
           </div>
         </div>
       </section>
 
       {/* CTA Section */}
       <section className="py-20 bg-white px-4 md:px-0">
-        <div className="bg-green-50 rounded-2xl max-w-3xl mx-auto p-12 flex flex-col items-center text-center shadow">
+        <div className="bg-green-50 rounded-2xl max-w-3xl mx-auto p-6 md:p-12 flex flex-col items-center text-center shadow">
           <h2 className="text-2xl md:text-3xl font-bold text-green-900 mb-3">
             Siap Berkontribusi untuk Surabaya yang Lebih Hijau?
           </h2>

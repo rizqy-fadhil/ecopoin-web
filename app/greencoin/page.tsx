@@ -386,9 +386,9 @@ export default function GreenCoinPage() {
   }
 
   return (
-    <main className="p-8 bg-gray-50 min-h-screen flex flex-col">
+    <main className="p-3 sm:p-4 md:p-8 bg-gray-50 min-h-screen flex flex-col">
       {/* Total Balance Card */}
-      <div className="bg-green-600 rounded-2xl p-8 text-white shadow-md flex flex-col md:flex-row justify-between items-center mb-8 gap-8">
+      <div className="bg-green-600 rounded-2xl p-4 sm:p-6 md:p-8 text-white shadow-md flex flex-col md:flex-row justify-between items-center mb-6 md:mb-8 gap-4 md:gap-8">
         {/* Left: Icon & Balance */}
         <div className="flex-1 flex flex-col gap-2">
           <div className="flex items-center gap-3">
@@ -397,7 +397,7 @@ export default function GreenCoinPage() {
               TOTAL BALANCE
             </span>
           </div>
-          <div className="text-5xl font-bold mt-2">
+          <div className="text-3xl sm:text-4xl md:text-5xl font-bold mt-2">
             {formatGC(balance)}{" "}
             <span className="font-light text-3xl align-top">GC</span>
           </div>
@@ -411,7 +411,7 @@ export default function GreenCoinPage() {
         <div className="flex items-center">
           <button
             type="button"
-            className="flex items-center gap-2 bg-green-800 hover:bg-green-900 px-6 py-3 rounded-full text-white font-semibold text-lg shadow transition"
+            className="flex items-center gap-2 bg-green-800 hover:bg-green-900 px-4 py-2 sm:px-6 sm:py-3 rounded-full text-white font-semibold text-base sm:text-lg shadow transition"
             onClick={() => setIsWithdrawModalOpen(true)}
           >
             <ArrowLeftRight className="w-5 h-5" />
@@ -424,7 +424,7 @@ export default function GreenCoinPage() {
       {isWithdrawModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
           <form
-            className="relative rounded-2xl bg-white w-full max-w-[430px] px-7 py-7 shadow-2xl flex flex-col"
+            className="relative rounded-2xl bg-white w-full max-w-[430px] mx-3 px-4 py-5 sm:px-7 sm:py-7 shadow-2xl flex flex-col"
             onSubmit={handleWithdrawSubmit}
           >
             {/* Header */}
@@ -467,7 +467,7 @@ export default function GreenCoinPage() {
               <label className="block text-xs font-semibold text-gray-700 mb-2 ml-1">
                 Select E-Wallet
               </label>
-              <div className="flex gap-2">
+              <div className="grid grid-cols-2 sm:flex gap-2">
                 {EWALLETS.map((ew) => (
                   <button
                     type="button"
@@ -571,7 +571,7 @@ export default function GreenCoinPage() {
                 </span>
               </div>
               {/* Quick Select */}
-              <div className="flex gap-2 mt-1">
+              <div className="flex flex-wrap gap-2 mt-1">
                 {[500, 1000, 2000].map((preset) => (
                   <button
                     type="button"
@@ -638,7 +638,7 @@ export default function GreenCoinPage() {
         </h2>
       </div>
       {/* Tabs Navigation */}
-      <div className="relative flex flex-row items-end border-b border-gray-200 mb-2">
+      <div className="relative flex flex-row items-end border-b border-gray-200 mb-2 overflow-x-auto">
         <button
           className={clsx(
             "px-4 py-2 font-semibold -mb-[1px] focus:outline-none",
@@ -694,7 +694,7 @@ export default function GreenCoinPage() {
               <div
                 key={tx.id || idx}
                 className={clsx(
-                  "flex items-center gap-4 px-4 py-4",
+                  "flex items-center gap-2 sm:gap-4 px-2 sm:px-4 py-3 sm:py-4",
                   idx !== filteredHistory.length - 1 && "border-b border-gray-100"
                 )}
               >
