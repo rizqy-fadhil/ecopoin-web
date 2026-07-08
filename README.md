@@ -14,8 +14,8 @@ Aplikasi EcoPoin menawarkan ekosistem pengelolaan sampah yang terintegrasi melal
 
 - 🚛 **EcoPick** — Layanan penjemputan sampah langsung ke rumah (*door-to-door*) oleh kurir, tanpa repot.
 - ♻️ **EcoDrop** — Layanan penyetoran sampah harian secara mandiri ke titik bank sampah (*drop point*) terdekat.
-- 🪙 **GreenCoin & EPoints** — Sistem reward utama. Dapatkan koin dari setiap gram sampah yang disetor untuk kemudian dicairkan ke saldo E-Wallet (GoPay, OVO, Dana, ShopeePay).
-- 🛒 **Market** — Tukarkan GreenCoin kamu dengan berbagai bahan produk rumah tangga (sembako) yang tersedia di dalam sistem.
+- 🪙 **GreenCoin** — Sistem reward utama. Dapatkan koin dari setiap gram sampah yang disetor untuk kemudian dicairkan ke saldo E-Wallet (GoPay, OVO, Dana, ShopeePay).
+- 🛒 **Marketplace** — Tukarkan GreenCoin kamu dengan berbagai bahan produk rumah tangga yang tersedia di dalam sistem.
 
 ---
 
@@ -23,11 +23,24 @@ Aplikasi EcoPoin menawarkan ekosistem pengelolaan sampah yang terintegrasi melal
 
 Proyek ini dibangun dengan teknologi modern web development untuk memastikan performa yang cepat dan antarmuka yang responsif:
 
-- **Framework:** [Next.js](https://nextjs.org/) (React)
-- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
-- **Backend & Database:** [Supabase](https://supabase.com/) (PostgreSQL)
-- **Authentication:** Supabase Auth (Row Level Security Enabled)
-- **Hosting/Deployment:** [Vercel](https://vercel.com/)
+<p>
+  <img src="https://img.shields.io/badge/Next.js-000000?style=for-the-badge&logo=nextdotjs&logoColor=white" alt="Next.js" />
+  <img src="https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB" alt="React" />
+  <img src="https://img.shields.io/badge/TypeScript-3178C6?style=for-the-badge&logo=typescript&logoColor=white" alt="TypeScript" />
+  <img src="https://img.shields.io/badge/Tailwind_CSS-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind CSS" />
+  <img src="https://img.shields.io/badge/Supabase-3ECF8E?style=for-the-badge&logo=supabase&logoColor=white" alt="Supabase" />
+  <img src="https://img.shields.io/badge/PostgreSQL-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
+  <img src="https://img.shields.io/badge/Vercel-000000?style=for-the-badge&logo=vercel&logoColor=white" alt="Vercel" />
+</p>
+
+| Kategori | Teknologi |
+|---|---|
+| **Framework** | [Next.js](https://nextjs.org/) (React) |
+| **Bahasa** | TypeScript |
+| **Styling** | [Tailwind CSS](https://tailwindcss.com/) |
+| **Backend & Database** | [Supabase](https://supabase.com/) (PostgreSQL) |
+| **Authentication** | Supabase Auth (Row Level Security Enabled) |
+| **Hosting/Deployment** | [Vercel](https://vercel.com/) |
 
 ---
 
