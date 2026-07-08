@@ -1,36 +1,92 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🍃 EcoPoin - Digital Waste Bank Platform
 
-## Getting Started
+**Ubah Sampahmu Jadi GreenCoin, Ciptakan Lingkungan yang Lebih Bersih!**
 
-First, run the development server:
+EcoPoin adalah platform bank sampah digital cerdas yang dirancang untuk mempermudah masyarakat dalam mengelola sampah daur ulang. Dengan pendekatan *gamification* dan insentif finansial, EcoPoin mengonversi sampah yang disetorkan pengguna menjadi **GreenCoin** yang dapat ditukarkan dengan berbagai kebutuhan sehari-hari maupun dicairkan ke E-Wallet.
+
+Website ini bertindak sebagai **Landing Page** sekaligus **Admin Dashboard** untuk mengelola operasional sistem EcoPoin secara komprehensif.
+
+---
+
+## ✨ Layanan & Fitur Utama
+
+Aplikasi EcoPoin menawarkan ekosistem pengelolaan sampah yang terintegrasi melalui fitur-fitur berikut:
+
+- 🚛 **EcoPick** — Layanan penjemputan sampah langsung ke rumah (*door-to-door*) oleh kurir, tanpa repot.
+- ♻️ **EcoDrop** — Layanan penyetoran sampah harian secara mandiri ke titik bank sampah (*drop point*) terdekat.
+- 🪙 **GreenCoin & EPoints** — Sistem reward utama. Dapatkan koin dari setiap gram sampah yang disetor untuk kemudian dicairkan ke saldo E-Wallet (GoPay, OVO, Dana, ShopeePay).
+- 🛒 **Market** — Tukarkan GreenCoin kamu dengan berbagai bahan produk rumah tangga (sembako) yang tersedia di dalam sistem.
+
+---
+
+## 🛠️ Teknologi yang Digunakan (Tech Stack)
+
+Proyek ini dibangun dengan teknologi modern web development untuk memastikan performa yang cepat dan antarmuka yang responsif:
+
+- **Framework:** [Next.js](https://nextjs.org/) (React)
+- **Styling:** [Tailwind CSS](https://tailwindcss.com/)
+- **Backend & Database:** [Supabase](https://supabase.com/) (PostgreSQL)
+- **Authentication:** Supabase Auth (Row Level Security Enabled)
+- **Hosting/Deployment:** [Vercel](https://vercel.com/)
+
+---
+
+## 🚀 Panduan Instalasi (Local Development)
+
+Untuk menjalankan proyek EcoPoin di komputer lokal (localhost), ikuti langkah-langkah berikut:
+
+### 1. Clone Repository
+
+```bash
+git clone https://github.com/rizqy-fadhil/ecopoin-web.git
+cd ecopoin-web
+```
+
+### 2. Install Dependencies
+
+Pastikan Node.js sudah terinstal, lalu jalankan:
+
+```bash
+npm install
+```
+
+### 3. Setup Environment Variables
+
+Buat file baru bernama `.env.local` di root direktori proyek, lalu isi dengan konfigurasi API Key Supabase kamu:
+
+```env
+NEXT_PUBLIC_SUPABASE_URL=https://[PROJECT-ID].supabase.co
+NEXT_PUBLIC_SUPABASE_ANON_KEY=[PUBLISHABLE-ANON-KEY]
+SUPABASE_SERVICE_ROLE_KEY=[SECRET-ROLE-KEY]
+```
+
+### 4. Jalankan Development Server
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+Buka [http://localhost:3000](http://localhost:3000) di browser untuk melihat aplikasi.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+---
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🌐 Live Preview (Deployment)
 
-## Learn More
+Proyek ini telah di-deploy secara otomatis menggunakan sistem CI/CD Vercel. Kunjungi versi production yang sudah tayang di sini:
 
-To learn more about Next.js, take a look at the following resources:
+👉 [EcoPoin Website Live](https://ecopoin-web.vercel.app)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+---
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 👥 Tim Pengembang (Kelompok 9)
 
-## Deploy on Vercel
+Proyek ini dikembangkan secara kolaboratif untuk memenuhi tugas akhir mata kuliah:
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- **Rizqy Fadhil Athallah** — Frontend Developer & UI/UX
+- **Andana** — Developer
+- **Hariz** — Developer
+- **Faisal** — Developer
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+
+<p align="center">Dibuat dengan 💚 di Surabaya untuk lingkungan yang lebih baik.</p>
