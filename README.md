@@ -78,15 +78,4 @@ Proyek ini telah di-deploy secara otomatis menggunakan sistem CI/CD Vercel. Kunj
 
 ---
 
-## 👥 Tim Pengembang (Kelompok 9)
-
-Proyek ini dikembangkan secara kolaboratif untuk memenuhi tugas akhir mata kuliah:
-
-- **Rizqy Fadhil Athallah** — Frontend Developer & UI/UX
-- **Andana** — Developer
-- **Hariz** — Developer
-- **Faisal** — Developer
-
----
-
 <p align="center">Dibuat dengan 💚 di Surabaya untuk lingkungan yang lebih baik.</p>
