@@ -52,13 +52,14 @@ export async function POST(request: Request) {
   }
 
   // 4. Insert transaction record
-  const ewalletLabel =
-    {
-      dana: "DANA",
-      gopay: "GoPay",
-      ovo: "OVO",
-      shopeepay: "ShopeePay",
-    }[ewallet.toLowerCase()] || ewallet;
+  const ewalletMap: Record<string, string> = {
+    dana: "DANA",
+    gopay: "GoPay",
+    ovo: "OVO",
+    shopeepay: "ShopeePay",
+  };
+
+const ewalletLabel = ewalletMap[ewallet.toLowerCase()] || ewallet;
 
   const notes = `Via ${ewalletLabel} - ${phone}`;
   const referenceNumber = `WD-${Date.now()}`;

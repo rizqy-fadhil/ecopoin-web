@@ -64,6 +64,11 @@ export async function middleware(request: NextRequest) {
 
   // Only guard /admin routes for admin check
   if (pathname.startsWith("/admin")) {
+    if (!user) {
+    const loginUrl = request.nextUrl.clone();
+    loginUrl.pathname = "/login";
+    return NextResponse.redirect(loginUrl);
+    }
     const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role")
