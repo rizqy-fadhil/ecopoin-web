@@ -76,17 +76,14 @@ export default function EcopickManagementPage() {
   const fetchTransactions = async () => {
     setLoading(true);
     try {
-      console.log("Mulai fetch...");
       const { data, error } = await supabase
         .from("transactions")
         .select("*, profiles!transactions_user_id_fkey(full_name), trash_categories(name)")
         .eq("type", "ecopick")
         .order("created_at", { ascending: false });
       if (error) {
-        console.error("Error Query:", error);
         setTransactions([]);
       } else {
-        console.log("Data Supabase:", data);
         setTransactions(data || []);
       }
     } catch (err) {
@@ -138,44 +135,25 @@ export default function EcopickManagementPage() {
     totalPoints: number
   ) {
     try {
+      setLoading(true);
+      const res = await fetch("/api/admin/approve-transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionId,
+          action: statusAction,
+          transactionType: "ecopick",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal melakukan aksi");
+      }
+
       if (statusAction === "completed") {
-        // Step 1: Update transaction status
-        const { error: trxError } = await supabase
-          .from("transactions")
-          .update({ status: "completed" })
-          .eq("id", transactionId);
-
-        if (trxError) throw trxError;
-
-        // Step 2: Top-up profile GreenCoin
-        // Get user curr points
-        const { data: profile, error: profErr } = await supabase
-          .from("profiles")
-          .select("total_points")
-          .eq("id", userId)
-          .single();
-
-        if (profErr) throw profErr;
-
-        const prevTotal = profile?.total_points || 0;
-
-        const { error: updErr } = await supabase
-          .from("profiles")
-          .update({ total_points: prevTotal + totalPoints })
-          .eq("id", userId);
-
-        if (updErr) throw updErr;
-
         alert("Transaksi diterima & GreenCoin sudah ditambahkan!");
-      } else if (statusAction === "cancelled") {
-        // Step: Update transaction status - cancel
-        const { error: trxError } = await supabase
-          .from("transactions")
-          .update({ status: "cancelled" })
-          .eq("id", transactionId);
-
-        if (trxError) throw trxError;
-
+      } else {
         alert("Transaksi berhasil dibatalkan.");
       }
       // Refresh data

@@ -9,25 +9,14 @@ import {
   ArrowUpRight,
   Loader2,
 } from "lucide-react";
-import {
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  Tooltip,
-  ResponsiveContainer,
-  CartesianGrid,
-  PieChart,
-  Pie,
-  Cell,
-} from "recharts";
-import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import dynamic from "next/dynamic";
+import { createClient } from "@/lib/supabase/client";
+
+const DashboardLineChart = dynamic(() => import("@/components/DashboardLineChart"), { ssr: false });
+const DashboardPieChart = dynamic(() => import("@/components/DashboardPieChart"), { ssr: false });
 
 // Supabase client
-const supabase = createBrowserClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+const supabase = createClient();
 
 function numberFormat(value: number, opts: Intl.NumberFormatOptions = {}) {
   return new Intl.NumberFormat("id-ID", {
@@ -354,19 +343,7 @@ export default function Dashboard() {
               <span className="font-semibold text-gray-800 text-lg">Recycling Activity</span>
             </div>
             <div className="w-full h-[200px] sm:h-[250px] md:h-[300px]">
-              <ResponsiveContainer width="100%" height="100%">
-                <LineChart data={activityData.length > 0 ? activityData : [{ label: "", recycled: 0 }]}>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                  <XAxis dataKey="label" tick={{ fontSize: 12 }} minTickGap={8} />
-                  <YAxis tick={{ fontSize: 12 }} axisLine={false} tickLine={false} width={48} allowDecimals />
-                  <Tooltip
-                    contentStyle={{ borderRadius: "8px" }}
-                    labelStyle={{ fontWeight: 500 }}
-                    formatter={(value: any, name: any) => [`${numberFormat(Number(value ?? 0))} kg`, "Recycled"]}
-                  />
-                  <Line type="monotone" dataKey="recycled" stroke="#16a34a" strokeWidth={3} dot={{ r: 4 }} activeDot={{ r: 6 }} />
-                </LineChart>
-              </ResponsiveContainer>
+              <DashboardLineChart activityData={activityData} />
             </div>
           </div>
           <div className="col-span-1 bg-white rounded-xl shadow-sm p-5 flex flex-col">
@@ -407,31 +384,7 @@ export default function Dashboard() {
             <div className="flex flex-col md:flex-row items-center gap-4 md:gap-8 justify-center">
               <div className="flex-1 flex justify-center">
                 <div className="w-[220px] h-[220px] sm:w-[280px] sm:h-[280px] md:w-[300px] md:h-[300px]">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <PieChart margin={{ top: 20, right: 30, bottom: 20, left: 30 }}>
-                      <Pie
-                        data={categoriesBreakdown}
-                        dataKey="total"
-                        nameKey="name"
-                        cx="50%"
-                        cy="50%"
-                        outerRadius={70}
-                        innerRadius={45}
-                        labelLine={false}
-                        label={({ name, percent }) => `${name} (${Math.round((percent ?? 0) * 100)}%)`}
-                        isAnimationActive={false}
-                      >
-                        {categoriesBreakdown.map((entry, i) => (
-                          <Cell key={entry.name} fill={CATEGORIES_COLORS[i % CATEGORIES_COLORS.length]} />
-                        ))}
-                      </Pie>
-                      <Tooltip
-                        formatter={(value: any, name: any) => [`${numberFormat(Number(value ?? 0))} kg`, name]}
-                        contentStyle={{ borderRadius: "8px" }}
-                        labelStyle={{ fontWeight: 500 }}
-                      />
-                    </PieChart>
-                  </ResponsiveContainer>
+                  <DashboardPieChart categoriesBreakdown={categoriesBreakdown} />
                 </div>
               </div>
               <div className="flex-1 min-w-[170px] max-w-md w-full">
@@ -440,7 +393,7 @@ export default function Dashboard() {
                     const max = categoriesBreakdown[0]?.total || 1;
                     return (
                       <li key={cat.name} className="flex items-center gap-3">
-                        <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: CATEGORIES_COLORS[i % CATEGORIES_COLORS.length] }}></span>
+                        <span className="inline-block w-3 h-3 rounded-full" style={{ backgroundColor: ["#16a34a", "#ca8a04", "#2563eb", "#dc2626", "#9333ea", "#0891b2"][i % 6] }}></span>
                         <div className="flex-1">
                           <div className="flex items-center justify-between">
                             <span className="text-sm font-semibold text-gray-800">{cat.name}</span>
@@ -449,7 +402,7 @@ export default function Dashboard() {
                           <div className="w-full bg-gray-100 rounded-full h-2 mt-1.5">
                             <div
                               className="h-2 rounded-full"
-                              style={{ width: `${Math.max(8, (cat.total / max) * 100)}%`, background: CATEGORIES_COLORS[i % CATEGORIES_COLORS.length], transition: "width 0.4s" }}
+                              style={{ width: `${Math.max(8, (cat.total / max) * 100)}%`, background: ["#16a34a", "#ca8a04", "#2563eb", "#dc2626", "#9333ea", "#0891b2"][i % 6], transition: "width 0.4s" }}
                             />
                           </div>
                         </div>

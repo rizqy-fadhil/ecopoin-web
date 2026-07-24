@@ -48,7 +48,7 @@ const sidebarMenu: SidebarItem[] = [
 
 function AdminSidebar({ onLogout }: { onLogout: () => void }) {
   return (
-    <aside className="sticky top-0 h-screen w-64 shrink-0 overflow-y-auto bg-slate-900 text-white">
+    <aside className="h-full w-64 shrink-0 overflow-y-auto bg-slate-900 text-white">
       <div className="flex flex-col h-full">
         {/* Sidebar Header */}
         <div className="px-6 py-8 flex items-center gap-3 border-b border-slate-800">
@@ -165,12 +165,12 @@ export default function AdminLayout({
   // Di sini, pastikan hanya AdminSidebar yang tampil di halaman /admin/*
   return (
     <HideUserSidebarWhenAdmin>
-        <div className="flex min-h-screen w-full items-start bg-gray-100">
-        <AdminSidebar onLogout={handleLogout} />
-        <main className="flex-1 min-h-screen bg-gray-100 p-8 overflow-auto">
-          {children}
-        </main>
-      </div>
+        <div className="flex h-screen w-full overflow-hidden bg-gray-100">
+          <AdminSidebar onLogout={handleLogout} />
+          <main className="flex-1 h-full bg-gray-100 p-8 overflow-y-auto">
+            {children}
+          </main>
+        </div>
     </HideUserSidebarWhenAdmin>
   );
 }

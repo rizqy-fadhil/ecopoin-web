@@ -13,7 +13,7 @@ import {
   Recycle,
 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
 const DEFAULT_LOCATION = {
@@ -25,23 +25,9 @@ const DEFAULT_LOCATION = {
   hours: "Senin - Sabtu, 08:00 - 15:00",
 };
 
-// Generate EDP reference: EDP-DDMMYY-XXXX
-function generateReferenceNumber() {
-  const pad = (n: number, len = 2) => n.toString().padStart(len, "0");
-  const d = new Date();
-  const dd = pad(d.getDate());
-  const mm = pad(d.getMonth() + 1);
-  const yy = d.getFullYear().toString().slice(-2);
-  const rand = pad(Math.floor(1000 + Math.random() * 9000), 4);
-  return `EDP-${dd}${mm}${yy}-${rand}`;
-}
-
 export default function EcoDropPage() {
   const router = useRouter();
-  const supabase: SupabaseClient = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const supabase: SupabaseClient = createClient();
   // Data State
   const [categories, setCategories] = useState<any[]>([]);
   const [selectedCategoryId, setSelectedCategoryId] = useState<string>("");
@@ -56,6 +42,17 @@ export default function EcoDropPage() {
   // File (mock only UI)
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!photoFile) {
+      setPhotoPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(photoFile);
+    setPhotoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [photoFile]);
 
   // Date & Time Pickup
   const [pickupDate, setPickupDate] = useState<string>(() => {
@@ -105,19 +102,9 @@ export default function EcoDropPage() {
       ? Math.round(weightNum * pointPerUnit)
       : 0;
 
-  // LOGIKA SUBMIT - with pickup_datetime
+  // LOGIKA SUBMIT
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const formData = {
-      selectedCategoryId,
-      weight,
-      notes,
-      photoFile,
-      pickupDate,
-      pickupTime,
-      selectedLocation,
-    };
-    console.log("Tombol diklik, mulai submit data...", formData);
 
     // required: kategori, weight, foto, tanggal, jam
     if (
@@ -133,69 +120,34 @@ export default function EcoDropPage() {
     setIsLoading(true);
 
     try {
-      // User from supabase
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-      if (userError || !user) {
-        console.error("Error Supabase:", userError || "User tidak ditemukan.");
-        alert('Gagal menyimpan: ' + (userError?.message || "User tidak ditemukan, silakan login ulang."));
-        return;
+      const formDataApi = new FormData();
+      formDataApi.append("trash_category_id", selectedCategoryId);
+      formDataApi.append("weight", weight);
+      formDataApi.append("notes", notes);
+      formDataApi.append("pickup_datetime", `${pickupDate}T${pickupTime}`);
+      formDataApi.append("location_address", selectedLocation.address);
+      if (photoFile) {
+        formDataApi.append("photo", photoFile);
       }
 
-      // Nomor referensi EDP
-      const reference_number = generateReferenceNumber();
+      const res = await fetch("/api/ecodrop", {
+        method: "POST",
+        body: formDataApi,
+      });
 
-      // Gabungkan tanggal & waktu pickup
-      const pickup_datetime = `${pickupDate}T${pickupTime}`;
+      const resData = await res.json();
 
-      // Insert ke transactions - PENTING di dalam try..catch
-      let trx, trxError;
-      try {
-        const res = await supabase
-          .from("transactions")
-          .insert([
-            {
-              user_id: user.id,
-              type: "ecodrop", // huruf kecil semua
-              status: "pending",
-              trash_category_id: selectedCategory.id,
-              weight: weightNum,
-              total_points: calculatedPoints,
-              reference_number,
-              location_address: selectedLocation.address,
-              pickup_datetime,
-              notes,
-            },
-          ])
-          .select()
-          .single();
-
-        trx = res.data;
-        trxError = res.error;
-      } catch (error) {
-        console.error("Error Supabase:", error);
-        alert('Gagal menyimpan: ' + (error as any)?.message);
-        setIsLoading(false);
-        return;
-      }
-
-      if (trxError) {
-        console.error("Error Supabase:", trxError);
-        alert('Gagal menyimpan: ' + trxError.message);
-        setIsLoading(false);
-        return;
+      if (!res.ok) {
+        throw new Error(resData.error || "Gagal menyimpan transaksi.");
       }
 
       // Success summary state
       setSuccessData({
-        ...trx,
-        reference_number,
-        category: selectedCategory.name,
+        ...resData.data,
+        category: selectedCategory?.name,
         location: selectedLocation.label,
         address: selectedLocation.address,
-        estimatedPoints: calculatedPoints,
+        estimatedPoints: resData.data.total_points, // use server calculated points
         weight: weightNum,
         pickupDate,
         pickupTime,
@@ -203,7 +155,6 @@ export default function EcoDropPage() {
       });
       setIsSuccess(true);
     } catch (err: any) {
-      console.error("Error Supabase:", err);
       alert(
         'Gagal menyimpan: ' + (err?.message || "Terjadi kesalahan.")
       );
@@ -565,7 +516,7 @@ export default function EcoDropPage() {
               {photoFile ? (
                 <>
                   <img
-                    src={URL.createObjectURL(photoFile)}
+                    src={photoPreview!}
                     alt="Preview foto drop-off"
                     className="w-full max-h-64 min-h-[220px] object-contain rounded-xl border border-gray-100 bg-gray-50"
                   />

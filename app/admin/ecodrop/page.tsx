@@ -92,45 +92,24 @@ export default function AdminEcoDropPage() {
     setIsLoading(true);
 
     try {
+      const res = await fetch("/api/admin/approve-transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionId,
+          action: statusAction,
+          transactionType: "ecodrop",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal update status");
+      }
+
       if (statusAction === "completed") {
-        // 1. Update transaction status
-        const { error: trxErr } = await supabase
-          .from("transactions")
-          .update({ status: "completed" })
-          .eq("id", transactionId);
-
-        if (trxErr) throw trxErr;
-
-        // 2. Increment points to profiles
-        const { error: profErr } = await supabase.rpc("increment_profile_points", {
-          uid: userId,
-          points: totalPoints,
-        });
-        // fallback: if stored procedure does not exist, update points manually
-        if (profErr) {
-          const { data: profile, error: profileErr } = await supabase
-            .from("profiles")
-            .select("total_points")
-            .eq("id", userId)
-            .single();
-
-          if (profileErr) throw profileErr;
-
-          const nextTotalPoints = Number(profile?.total_points || 0) + totalPoints;
-          const { error: fallbackErr } = await supabase
-            .from("profiles")
-            .update({ total_points: nextTotalPoints })
-            .eq("id", userId);
-
-          if (fallbackErr) throw fallbackErr;
-        }
         alert("Transaksi disetujui dan poin ditambahkan!");
-      } else if (statusAction === "cancelled") {
-        const { error } = await supabase
-          .from("transactions")
-          .update({ status: "cancelled" })
-          .eq("id", transactionId);
-        if (error) throw error;
+      } else {
         alert("Transaksi berhasil ditolak.");
       }
       fetchTransactions();

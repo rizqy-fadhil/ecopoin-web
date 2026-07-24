@@ -12,7 +12,7 @@ import {
   ArrowDownLeft,
   ArrowUpRight,
 } from "lucide-react";
-import { createBrowserClient } from "@supabase/auth-helpers-nextjs";
+import { createClient } from "@/lib/supabase/client";
 import type { SupabaseClient } from "@supabase/supabase-js";
 import clsx from "clsx";
 
@@ -49,13 +49,6 @@ function formatDate(dateStr: string | Date) {
   );
 }
 
-// Find EWallet label
-function ewalletLabel(val: string | undefined) {
-  if (!val) return "";
-  const ew = EWALLETS.find(e => e.value === val.toLowerCase());
-  return ew ? ew.label : val;
-}
-
 const EWALLETS = [
   { label: "DANA", value: "dana" },
   { label: "GoPay", value: "gopay" },
@@ -66,10 +59,7 @@ const EWALLETS = [
 const MIN_WITHDRAW = 500;
 
 export default function GreenCoinPage() {
-  const supabase: SupabaseClient = createBrowserClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
-  );
+  const supabase: SupabaseClient = createClient();
   const [balance, setBalance] = useState<number>(0);
   const [isWithdrawModalOpen, setIsWithdrawModalOpen] = useState(false);
   const [selectedEwallet, setSelectedEwallet] = useState<string | null>(null);
@@ -177,18 +167,6 @@ export default function GreenCoinPage() {
     e.preventDefault();
     setLoading(true);
     try {
-      // 1. Ambil user terbaru (dari supabase.auth.getUser)
-      const {
-        data: { user },
-        error: userError,
-      } = await supabase.auth.getUser();
-
-      if (userError || !user) {
-        alert("User tidak terdeteksi atau belum login.");
-        return;
-      }
-
-      // 2. Validasi amount
       if (!canSubmit) return;
       if (amountNumber < MIN_WITHDRAW) {
         alert(`Minimal withdraw adalah ${MIN_WITHDRAW} GC`);
@@ -199,43 +177,25 @@ export default function GreenCoinPage() {
         return;
       }
 
-      // 3. Update saldo di database (potong saldo di tabel profiles).
-      //    Gunakan atomic update, pastikan eq('id', user.id)
-      const newBalance = balance - amountNumber;
-
-      const { error: updateErr } = await supabase
-        .from("profiles")
-        .update({ total_points: newBalance })
-        .eq("id", user.id);
-
-      if (updateErr) {
-        alert(
-          updateErr?.message ||
-            "Gagal memperbarui saldo. Silakan coba lagi."
-        );
-        return;
-      }
-
-      // 4. Setelah saldo sukses terpotong, insert transaksi withdraw ke tabel transactions
-      const { error: insertErr } = await supabase.from("transactions").insert({
-        user_id: user.id,
-        type: "withdraw",
-        status: "pending",
-        total_points: amountNumber,
-        notes: `Via ${EWALLETS.find((e) => e.value === selectedEwallet)?.label} - ${phone}`,
-        created_at: new Date().toISOString(),
+      const res = await fetch("/api/greencoin/withdraw", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ewallet: selectedEwallet,
+          phone,
+          accountName,
+          amount: amountNumber,
+        }),
       });
 
-      if (insertErr) {
-        alert(
-          insertErr?.message ||
-            "Gagal mencatat transaksi withdraw, silakan kontak admin."
-        );
-        return;
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal melakukan pencairan.");
       }
 
       // 5. Update state balance agar di UI langsung sinkron dengan database
-      setBalance((prev) => prev - amountNumber);
+      setBalance(data.newBalance);
       setIsWithdrawModalOpen(false);
       setPhone("");
       setAccountName("");
@@ -243,13 +203,13 @@ export default function GreenCoinPage() {
       setSelectedEwallet(null);
 
       // 6. Refresh transaction history
-      if (user.id) {
+      if (userId) {
         // Optional: refetch after slight delay to give backend time to insert
         setTimeout(async () => {
           const { data, error } = await supabase
             .from("transactions")
             .select("*")
-            .eq("user_id", user.id)
+            .eq("user_id", userId)
             .order("created_at", { ascending: false });
           if (!error && Array.isArray(data)) {
             setHistoryData(data);
@@ -423,14 +383,17 @@ export default function GreenCoinPage() {
       {/* Withdraw Modal */}
       {isWithdrawModalOpen && (
         <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 backdrop-blur-sm">
-          <form
+          <div
+            role="dialog"
+            aria-modal="true"
+            aria-labelledby="withdraw-title"
             className="relative rounded-2xl bg-white w-full max-w-[430px] mx-3 px-4 py-5 sm:px-7 sm:py-7 shadow-2xl flex flex-col"
-            onSubmit={handleWithdrawSubmit}
           >
-            {/* Header */}
-            <div className="flex justify-between items-center mb-2">
-              <div>
-                <h3 className="text-2xl font-bold text-gray-900">Withdraw</h3>
+            <form onSubmit={handleWithdrawSubmit}>
+              {/* Header */}
+              <div className="flex justify-between items-center mb-2">
+                <div>
+                  <h3 id="withdraw-title" className="text-2xl font-bold text-gray-900">Withdraw</h3>
                 <p className="text-gray-500 text-sm mt-1">
                   Convert your GreenCoin into e-wallet balance quickly and securely.
                 </p>
@@ -467,10 +430,12 @@ export default function GreenCoinPage() {
               <label className="block text-xs font-semibold text-gray-700 mb-2 ml-1">
                 Select E-Wallet
               </label>
-              <div className="grid grid-cols-2 sm:flex gap-2">
+              <div role="tablist" className="grid grid-cols-2 sm:flex gap-2">
                 {EWALLETS.map((ew) => (
                   <button
                     type="button"
+                    role="tab"
+                    aria-selected={selectedEwallet === ew.value}
                     key={ew.value}
                     className={clsx(
                       "flex-1 py-3 rounded-xl border font-semibold text-center transition focus:outline-none",
@@ -627,7 +592,8 @@ export default function GreenCoinPage() {
                 Cancel
               </button>
             </div>
-          </form>
+            </form>
+          </div>
         </div>
       )}
 

@@ -30,7 +30,6 @@ export default function AccountSettingsPage() {
     location: "",
   });
 
-  const [profileId, setProfileId] = useState<number | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   // Profile loading/processing state
@@ -39,6 +38,7 @@ export default function AccountSettingsPage() {
 
   // Password Section
   const [passwords, setPasswords] = useState({
+    current_password: "",
     new_password: "",
     confirm_password: "",
   });
@@ -71,6 +71,10 @@ export default function AccountSettingsPage() {
         .eq("id", user.id)
         .single();
 
+      if (profileErr) {
+        console.error("Profile fetch error:", profileErr);
+      }
+
       if (!ignore) {
         setFormData({
           full_name: profile?.full_name || "",
@@ -78,7 +82,6 @@ export default function AccountSettingsPage() {
           location: profile?.location || "",
           email: user.email || "",
         });
-        setProfileId(profile?.id ?? null);
         setLoadingProfile(false);
       }
     }
@@ -143,10 +146,18 @@ export default function AccountSettingsPage() {
   async function handleChangePassword(e: React.FormEvent) {
     e.preventDefault();
     setChangingPw(true);
-    if (passwords.new_password.length < 6) {
+    if (!passwords.current_password) {
       setToast({
         type: "error",
-        message: "Password must be at least 6 characters.",
+        message: "Current password is required.",
+      });
+      setChangingPw(false);
+      return;
+    }
+    if (passwords.new_password.length < 8) {
+      setToast({
+        type: "error",
+        message: "Password must be at least 8 characters.",
       });
       setChangingPw(false);
       return;
@@ -160,6 +171,17 @@ export default function AccountSettingsPage() {
       return;
     }
     try {
+      // 1. Verify current password
+      const { error: verifyErr } = await supabase.auth.signInWithPassword({
+        email: formData.email,
+        password: passwords.current_password,
+      });
+
+      if (verifyErr) {
+        throw new Error("Current password is incorrect.");
+      }
+
+      // 2. Update to new password
       const { error } = await supabase.auth.updateUser({
         password: passwords.new_password,
       });
@@ -168,7 +190,7 @@ export default function AccountSettingsPage() {
         type: "success",
         message: "Password updated successfully.",
       });
-      setPasswords({ new_password: "", confirm_password: "" });
+      setPasswords({ current_password: "", new_password: "", confirm_password: "" });
     } catch (err: any) {
       setToast({
         type: "error",
@@ -197,6 +219,7 @@ export default function AccountSettingsPage() {
       {/* Toast */}
       {toast && (
         <div
+          role="alert" aria-live="assertive"
           className={`fixed top-3 left-1/2 -translate-x-1/2 z-40 rounded-lg px-6 py-3 shadow-lg text-base transition
           ${toast.type === "success" ? "bg-green-600 text-white" : "bg-red-500 text-white"}`}
         >
@@ -349,6 +372,26 @@ export default function AccountSettingsPage() {
         <div className="text-green-700 text-sm mb-5">
           Update your password regularly to keep your account secure.
         </div>
+        {/* Current Password */}
+        <div className="mb-4 max-w-2xl">
+          <label className="block text-xs text-gray-500 font-semibold mb-2">
+            Current Password
+          </label>
+          <div className="relative">
+            <input
+              type="password"
+              name="current_password"
+              className="w-full px-4 pl-10 py-3 pr-10 rounded-xl bg-gray-50/50 border border-gray-200 focus:ring-green-200 focus:border-green-400 text-gray-900 font-medium placeholder-gray-400 transition"
+              placeholder="********"
+              autoComplete="current-password"
+              value={passwords.current_password}
+              onChange={handlePasswordChange}
+              required
+              disabled={changingPw || loadingProfile}
+            />
+            <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-gray-400" />
+          </div>
+        </div>
         {/* New & Confirm Password */}
         <div className="flex flex-col md:flex-row gap-4 max-w-2xl">
           {/* New Password */}
@@ -365,7 +408,7 @@ export default function AccountSettingsPage() {
                 autoComplete="new-password"
                 value={passwords.new_password}
                 onChange={handlePasswordChange}
-                minLength={6}
+                minLength={8}
                 required
                 disabled={changingPw || loadingProfile}
               />
@@ -387,7 +430,7 @@ export default function AccountSettingsPage() {
                 autoComplete="new-password"
                 value={passwords.confirm_password}
                 onChange={handlePasswordChange}
-                minLength={6}
+                minLength={8}
                 required
                 disabled={changingPw || loadingProfile}
               />

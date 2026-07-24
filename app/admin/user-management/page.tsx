@@ -75,7 +75,6 @@ export default function UserManagementPage() {
     if (error) {
       console.error("Error fetching profiles:", error);
     } else {
-      console.log("Data Users dari Supabase:", data);
       setProfiles(data ?? []);
     }
 

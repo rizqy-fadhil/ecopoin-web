@@ -15,7 +15,7 @@ export function ClientRootLayout({
   const isAdminRoute = pathname.startsWith("/admin");
 
   return (
-    <body className={bodyClassName}>
+    <body className={`${bodyClassName ?? ""} ${isAdminRoute ? "overflow-hidden h-screen" : ""}`.trim()}>
       {!isAdminRoute ? <ClientAppLayout>{children}</ClientAppLayout> : children}
     </body>
   );

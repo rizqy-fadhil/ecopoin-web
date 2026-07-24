@@ -77,6 +77,17 @@ export default function PickupPage() {
 
   const fileInputRef = useRef<HTMLInputElement | null>(null);
   const [photoFile, setPhotoFile] = useState<File | null>(null);
+  const [photoPreview, setPhotoPreview] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!photoFile) {
+      setPhotoPreview(null);
+      return;
+    }
+    const url = URL.createObjectURL(photoFile);
+    setPhotoPreview(url);
+    return () => URL.revokeObjectURL(url);
+  }, [photoFile]);
   const [isDragOver, setIsDragOver] = useState(false);
 
   useEffect(() => {
@@ -442,8 +453,8 @@ export default function PickupPage() {
               {photoFile ? (
                 <>
                   <img
-                    src={URL.createObjectURL(photoFile)}
-                    alt="Preview foto sampah"
+                    src={photoPreview!}
+                    alt="Preview sampah"
                     className="w-28 h-28 object-cover rounded-xl mb-2"
                   />
                   <span className="font-medium text-green-700 mb-1">

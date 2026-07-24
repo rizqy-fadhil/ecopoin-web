@@ -34,10 +34,8 @@ export async function POST(request: Request) {
   const locationAddress = String(formData.get("location_address") || "").trim();
   const pickupDatetime = String(formData.get("pickup_datetime") || "");
   const notes = String(formData.get("notes") || "");
-  const totalPoints = Number(formData.get("total_points"));
-  const referenceNumber =
-    String(formData.get("reference_number") || "").trim() ||
-    generateReferenceNumber();
+  // const totalPoints = Number(formData.get("total_points")); // Removed: Calculate server-side
+  const referenceNumber = generateReferenceNumber(); // Always generate server-side
 
   const latitudeRaw = formData.get("latitude");
   const longitudeRaw = formData.get("longitude");
@@ -67,6 +65,22 @@ export async function POST(request: Request) {
   const photoFile =
     photo instanceof File && photo.size > 0 ? photo : null;
 
+  // Calculate total_points SERVER-SIDE
+  const { data: category, error: catError } = await db
+    .from("trash_categories")
+    .select("point_per_unit")
+    .eq("id", trashCategoryId)
+    .single();
+
+  if (catError || !category) {
+    return NextResponse.json(
+      { error: "Kategori sampah tidak ditemukan." },
+      { status: 400 },
+    );
+  }
+
+  const totalPoints = Math.round(weight * Number(category.point_per_unit));
+
   const { data: trx, error: insertError } = await db
     .from("transactions")
     .insert([
@@ -81,7 +95,7 @@ export async function POST(request: Request) {
         longitude,
         pickup_datetime: pickupDatetime,
         notes,
-        total_points: Number.isFinite(totalPoints) ? totalPoints : 0,
+        total_points: totalPoints,
         reference_number: referenceNumber,
       },
     ])

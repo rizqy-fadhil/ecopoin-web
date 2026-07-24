@@ -90,7 +90,6 @@ export default function MasterDataKonversiPoinPage() {
         try {
           const { error } = await supabase.from("trash_categories").insert([dataToSave]);
           if (error) {
-            console.log("INSERT ERROR:", error);
             alert("Gagal menyimpan data: " + (error.message || "Unknown error"));
             return;
           }
@@ -99,7 +98,6 @@ export default function MasterDataKonversiPoinPage() {
           setIsModalOpen(false);
           setFormData({ name: "", point_per_unit: "" });
         } catch (err: any) {
-          console.log("Exception INSERT", err);
           alert("Terjadi error saat insert: " + (err?.message || err));
         }
       } else {
@@ -114,7 +112,6 @@ export default function MasterDataKonversiPoinPage() {
             })
             .eq("id", editId);
           if (error) {
-            console.log("UPDATE ERROR:", error);
             alert("Gagal update data: " + (error.message || "Unknown error"));
             return;
           }
@@ -124,12 +121,10 @@ export default function MasterDataKonversiPoinPage() {
           setFormData({ name: "", point_per_unit: "" });
           setEditId(null);
         } catch (err: any) {
-          console.log("Exception UPDATE", err);
           alert("Terjadi error saat update: " + (err?.message || err));
         }
       }
     } catch (outerErr: any) {
-      console.log("Exception OUTER", outerErr);
       alert("Error tak terduga: " + (outerErr?.message || outerErr));
     }
   }

@@ -124,47 +124,34 @@ export default function GreenCoinAdminPage() {
     });
   }, [transactions, search]);
 
-  // Refund system action handler (fix: only refund on 'cancelled', never add points on 'completed')
+  // Refund system action handler
   async function handleAction(
     transactionId: number,
     statusAction: "completed" | "cancelled",
     userId: number,
-    amount: number // amount = total_points (GC) yang akan di-refund jika 'cancelled'
+    amount: number
   ) {
     if (!transactionId) return;
     setLoading(true);
     try {
+      const res = await fetch("/api/admin/approve-transaction", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          transactionId,
+          action: statusAction,
+          transactionType: "withdraw",
+        }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Gagal update status");
+      }
+
       if (statusAction === "completed") {
-        // HANYA update status transaksi, JANGAN tambah saldo user!
-        const { error } = await supabase
-          .from("transactions")
-          .update({ status: "completed" })
-          .eq("id", transactionId);
-        if (error) throw error;
         alert("Permintaan withdraw diterima! Transfer manual dilakukan oleh admin.");
-      } else if (statusAction === "cancelled") {
-        // Update status transaksi menjadi 'cancelled'
-        const { error: trxError } = await supabase
-          .from("transactions")
-          .update({ status: "cancelled" })
-          .eq("id", transactionId);
-        if (trxError) throw trxError;
-
-        // Refund: tambahkan kembali GC user
-        const { data: profile, error: profileErr } = await supabase
-          .from("profiles")
-          .select("total_points")
-          .eq("id", userId)
-          .single();
-        if (profileErr) throw profileErr;
-
-        const nextPoints = Number(profile?.total_points || 0) + Number(amount);
-        const { error: updErr } = await supabase
-          .from("profiles")
-          .update({ total_points: nextPoints })
-          .eq("id", userId);
-        if (updErr) throw updErr;
-
+      } else {
         alert("Pencairan ditolak & poin telah dikembalikan ke user!");
       }
       fetchTransactions();

@@ -50,11 +50,8 @@ export default function LoginPage() {
       .eq("id", user.id)
       .single();
 
-    console.log("Data Profile:", profile);
-    console.log("Error Profile:", profileError);
-
     if (profileError) {
-      console.error("Gagal mengambil profil:", profileError);
+      setError("Gagal mengambil profil.");
     }
     
     // 3. Arahkan ke rute yang sesuai
@@ -199,7 +196,7 @@ export default function LoginPage() {
 
           {/* Error */}
           {error && (
-            <div className="mt-4 text-red-700 text-center text-sm bg-red-50 rounded-xl py-2.5 px-4 border border-red-100">
+            <div role="alert" aria-live="assertive" className="mt-4 text-red-700 text-center text-sm bg-red-50 rounded-xl py-2.5 px-4 border border-red-100">
               {error}
             </div>
           )}

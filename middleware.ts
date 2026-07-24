@@ -4,11 +4,6 @@ import { NextResponse, type NextRequest } from "next/server";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // Only guard /admin routes
-  if (!pathname.startsWith("/admin")) {
-    return NextResponse.next();
-  }
-
   let response = NextResponse.next({
     request: {
       headers: request.headers,
@@ -45,32 +40,41 @@ export async function middleware(request: NextRequest) {
     }
   );
 
-  // Get the authenticated user session
   const {
     data: { user },
     error: userError,
   } = await supabase.auth.getUser();
 
-  // If not logged in at all, redirect to login
-  if (userError || !user) {
+  const isPublicPage = pathname === "/";
+  const isAuthPage = pathname.startsWith("/login") || pathname.startsWith("/register");
+
+  // If not logged in and trying to access protected routes, redirect to login
+  if ((userError || !user) && !isAuthPage && !isPublicPage) {
     const loginUrl = request.nextUrl.clone();
     loginUrl.pathname = "/login";
     return NextResponse.redirect(loginUrl);
   }
 
-  // Check the user's role from the profiles table
-  const { data: profile, error: profileError } = await supabase
+  // If logged in and trying to access auth pages, redirect to dashboard
+  if (user && isAuthPage) {
+    const dashboardUrl = request.nextUrl.clone();
+    dashboardUrl.pathname = "/dashboard";
+    return NextResponse.redirect(dashboardUrl);
+  }
+
+  // Only guard /admin routes for admin check
+  if (pathname.startsWith("/admin")) {
+    const { data: profile, error: profileError } = await supabase
     .from("profiles")
     .select("role")
     .eq("id", user.id)
     .single();
 
-  // If we can't fetch the profile or the role is not 'admin', block access
-  if (profileError || !profile || profile.role !== "admin") {
-    // Redirect non-admin users back to the user dashboard
-    const dashboardUrl = request.nextUrl.clone();
-    dashboardUrl.pathname = "/dashboard";
-    return NextResponse.redirect(dashboardUrl);
+    if (profileError || !profile || profile.role !== "admin") {
+      const dashboardUrl = request.nextUrl.clone();
+      dashboardUrl.pathname = "/dashboard";
+      return NextResponse.redirect(dashboardUrl);
+    }
   }
 
   // User is admin — allow access
@@ -78,5 +82,7 @@ export async function middleware(request: NextRequest) {
 }
 
 export const config = {
-  matcher: ["/admin/:path*"],
+  matcher: [
+    '/((?!_next/static|_next/image|api|favicon.ico|.*\\.(?:svg|png|jpg|jpeg|gif|webp)$).*)',
+  ],
 };

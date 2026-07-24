@@ -1,4 +1,3 @@
-"use client";
 import Image from "next/image";
 import Link from "next/link";
 import {
@@ -15,6 +14,7 @@ import {
   Briefcase,
 } from "lucide-react";
 import React from "react";
+import LandingHeader from "@/components/LandingHeader";
 
 const heroImage = "/landingpage.webp";
 
@@ -22,58 +22,7 @@ export default function Home() {
   return (
     <div className="bg-[#f5faf6] min-h-screen flex flex-col">
       {/* Navbar */}
-      <header className="bg-white px-4 py-3 md:px-12 flex items-center justify-between shadow-sm sticky top-0 z-30">
-        <div className="flex items-center gap-3">
-          {/* Logo - replace src with local asset */}
-          <Image
-            src="/frame.png"
-            alt="EcoPoin Logo"
-            width={38}
-            height={38}
-            className="rounded-full"
-            priority
-          />
-          <span className="ml-2 font-bold text-green-700 text-lg md:text-xl">
-            EcoPoin
-          </span>
-        </div>
-        <nav className="hidden md:flex items-center gap-8">
-          <Link
-            href="/"
-            className="text-green-700 font-semibold hover:text-green-900 transition"
-          >
-            Beranda
-          </Link>
-          <Link
-            href="#layanan"
-            className="text-green-700 font-semibold hover:text-green-900 transition"
-          >
-            Layanan
-          </Link>
-          <Link
-            href="#carakerja"
-            className="text-green-700 font-semibold hover:text-green-900 transition"
-          >
-            Cara Kerja
-          </Link>
-        </nav>
-        <div className="flex gap-2">
-          <Link href="/login">
-            <button
-              className="px-3 py-1.5 text-sm md:px-5 md:py-2 md:text-base border-2 border-green-600 text-green-600 rounded-full font-semibold bg-white hover:bg-green-50 hover:border-green-700 hover:text-green-700 transition"
-            >
-              Masuk
-            </button>
-          </Link>
-          <Link href="/register">
-            <button
-              className="px-3 py-1.5 text-sm md:px-5 md:py-2 md:text-base bg-green-600 text-white rounded-full font-semibold hover:bg-green-700 transition"
-            >
-              Daftar
-            </button>
-          </Link>
-        </div>
-      </header>
+      <LandingHeader />
 
       {/* Hero Section */}
       <section className="flex flex-col md:flex-row items-center gap-12 px-4 md:px-12 py-20 bg-[#f5faf6]">
@@ -90,15 +39,17 @@ export default function Home() {
             Bergabunglah dengan EcoPoin untuk mengelola sampah, dapatkan poin hijau, dan wujudkan lingkungan yang lebih bersih sekaligus memperoleh reward nyata untuk kehidupan yang lebih baik!
           </p>
           <div className="flex gap-4 mb-6 flex-wrap">
-            <Link href="/register">
-              <button className="px-6 py-3 bg-green-600 text-white font-bold rounded-full text-lg hover:bg-green-700 transition shadow-sm">
-                Mulai Sekarang
-              </button>
+            <Link
+              href="/register"
+              className="px-6 py-3 bg-green-600 text-white font-bold rounded-full text-lg hover:bg-green-700 transition shadow-sm inline-block"
+            >
+              Mulai Sekarang
             </Link>
-            <Link href="#layanan">
-              <button className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-full text-lg bg-white hover:bg-gray-50 transition">
-                Pelajari Lebih Lanjut
-              </button>
+            <Link
+              href="#layanan"
+              className="px-6 py-3 border-2 border-gray-300 text-gray-700 font-bold rounded-full text-lg bg-white hover:bg-gray-50 transition inline-block"
+            >
+              Pelajari Lebih Lanjut
             </Link>
           </div>
           <div className="flex items-center mt-3 gap-3 text-green-700 text-base font-medium">
@@ -234,10 +185,11 @@ export default function Home() {
           <p className="text-gray-700 mb-8">
             Daftar sekarang dan jadi bagian dari perubahan dengan EcoPoin. Sampahmu, masa depanmu!
           </p>
-          <Link href="/register" className="w-full sm:w-auto">
-            <button className="px-8 py-4 bg-green-600 text-white rounded-full font-bold text-lg shadow-lg hover:bg-green-700 transition w-full sm:w-auto">
-              Buat Akun Sekarang
-            </button>
+          <Link
+            href="/register"
+            className="px-8 py-4 bg-green-600 text-white rounded-full font-bold text-lg shadow-lg hover:bg-green-700 transition w-full sm:w-auto inline-block"
+          >
+            Buat Akun Sekarang
           </Link>
         </div>
       </section>
@@ -319,7 +271,7 @@ export default function Home() {
             <div className="font-bold text-green-900 mb-3">Kritik & Saran</div>
             <form
               className="flex items-center bg-green-50 rounded-full overflow-hidden shadow border border-green-100 max-w-sm"
-              onSubmit={e => e.preventDefault()}
+              action="#"
               autoComplete="off"
             >
               <input

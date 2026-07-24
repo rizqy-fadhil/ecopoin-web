@@ -128,7 +128,6 @@ export default function AdminDashboardPage() {
         .order("created_at", { ascending: false });
 
       if (txErr) console.error("Error fetching transactions:", txErr);
-      console.log("Raw Transactions Admin:", txData);
 
       // Fetch all profiles for name lookup
       const { data: profilesData, error: profErr } = await supabase
