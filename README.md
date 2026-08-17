@@ -5,6 +5,7 @@
 EcoPoin adalah platform bank sampah digital cerdas yang dirancang untuk mempermudah masyarakat dalam mengelola sampah daur ulang. Dengan pendekatan *gamification* dan insentif finansial, EcoPoin mengonversi sampah yang disetorkan pengguna menjadi **GreenCoin** yang dapat ditukarkan dengan berbagai kebutuhan sehari-hari maupun dicairkan ke E-Wallet.
 
 Website ini bertindak sebagai **Landing Page** sekaligus **Admin Dashboard** untuk mengelola operasional sistem EcoPoin secara komprehensif.
+Website ini diperuntukan untuk warga Surabaya Timur
 
 ---
 
